@@ -13,6 +13,8 @@ if git check-ignore --quiet "$example"; then
   exit 1
 fi
 git check-ignore --quiet "$real_environment"
-git status --short --untracked-files=all -- "$example" | grep -q 'remote.env.example'
+if ! git ls-files --error-unmatch "$example" >/dev/null 2>&1; then
+  git status --short --untracked-files=all -- "$example" | grep -q 'remote.env.example'
+fi
 
 echo "Deployment environment ignore-policy regression checks passed."

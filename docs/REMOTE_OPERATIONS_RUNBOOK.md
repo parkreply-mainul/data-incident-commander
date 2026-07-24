@@ -50,6 +50,18 @@ make remote-check
 make remote-plan
 ```
 
+Gate 2 host acceptance is separate:
+
+```bash
+bash deploy/scripts/check_gate2_base_host.sh \
+  --expected-hostname dic-runtime-01
+```
+
+This base-host checker expects Docker and project workloads to be absent and
+accepts swap as deferred. Do not run
+`deploy/scripts/check_remote_prerequisites.sh` until Gate 3 has separately
+approved and completed package and Docker installation.
+
 Future remote commands require a noncommitted environment file:
 
 ```bash

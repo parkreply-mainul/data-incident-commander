@@ -36,31 +36,46 @@ estimate are not yet approved, and no credential path is documented.
 ## 2. Network boundary before compute
 
 - create a default-deny cloud firewall;
-- restrict SSH to approved administrator sources or a verified console path;
-- reserve public HTTPS only for the future application;
+- use IAP TCP forwarding plus OS Login for SSH, with no external VM IP and TCP
+  22 allowed only from `35.235.240.0/20`;
+- deny all Gate 2 VM egress through the dedicated target tag;
+- defer every public HTTPS resource and rule to the future judge-access gate;
 - do not expose DataHub, MCP, database, Kafka, or Docker ports;
 - document outbound requirements; and
-- verify recovery access before disabling password authentication.
+- verify the approved IAP/OS Login recovery path while password authentication
+  remains disabled.
 
 Provider firewall behavior and the interaction with Docker-published ports must
 be tested before DataHub startup.
 
 ## 3. Provision the VM
 
-- use a current provider-supported Linux image;
-- attach only the dedicated SSH public key;
-- enable provider monitoring without application-secret capture;
+- use the exact approved immutable Ubuntu 24.04 LTS amd64 image, never an image
+  family in the executable payload;
+- attach no service account or metadata SSH key; use only the approved IAP and
+  OS Login identity path;
+- do not enable VPC Flow Logs, firewall logging, Ops Agent, premium logging, or
+  other optional monitoring in Gate 2;
 - apply the firewall by immutable resource ID or verified tag;
-- record VM, disk, firewall, IP, and region identifiers; and
+- record VM, disk, firewall, VPC, subnet, zone, and region identifiers and
+  confirm no external IP exists; and
 - verify CPU, RAM, disk, architecture, clock, and package-source state.
+
+Gate 2 runs only `deploy/scripts/check_gate2_base_host.sh`. It validates the
+pristine host without Docker, Compose, curl, jq, git, OpenSSL, Python packages,
+cloud SDK, installation, downloads, or repository checkout. Missing swap is
+reported as deferred. IAP, OS Login, external-IP absence, IAM, and effective
+cloud firewall policy remain console-side evidence rather than guest claims.
 
 ## 4. Harden administrative access
 
 - verify the host key;
-- create a named administrator;
-- confirm `sudo` and recovery-console access;
-- disable password and routine root SSH only after recovery is proven;
-- apply security updates with a documented reboot decision; and
+- use the private OS Login identity; create no metadata or unmanaged local
+  administrator;
+- grant temporary administrator elevation only if the approved validation
+  requires it, then record its revocation;
+- require password authentication and routine root SSH to remain disabled;
+- defer security updates and package changes to Gate 3; and
 - retain no cloud API token on the VM unless required.
 
 ## 5. Install Docker Engine and Compose
@@ -119,6 +134,11 @@ only after approval and plan its revocation.
 
 Exact Linux Python commands depend on the selected distribution and are
 deferred until its official package versions are verified.
+
+After approved Gate 3 packages and Docker are installed, run
+`deploy/scripts/check_remote_prerequisites.sh`. It intentionally requires
+Docker, Compose, curl, jq, git, and OpenSSL and is not a Gate 2 acceptance
+check.
 
 ## 8. Pre-start inspection
 

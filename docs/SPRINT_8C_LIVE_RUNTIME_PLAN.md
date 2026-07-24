@@ -83,10 +83,12 @@ verified. No infrastructure exists. See the Gate 1 closure record.
 
 - Follow
   [SPRINT_8C_GATE_2_IMPLEMENTATION_PLAN.md](SPRINT_8C_GATE_2_IMPLEMENTATION_PLAN.md).
-- Provision only the approved Ubuntu LTS VM, disk, IPv4, SSH key, and
-  default-deny cloud firewall.
+- Provision only the approved Ubuntu LTS VM, disk, private network, IAP/OS
+  Login boundary, least-privilege IAM, IAP-only SSH ingress, and VM-scoped
+  deny-all egress. Attach no external VM IP.
 - Record provider resource identifiers outside Git.
-- Run the read-only remote prerequisite checker.
+- Run only `deploy/scripts/check_gate2_base_host.sh`, the read-only
+  pristine-host checker that requires no installed project tooling.
 - Abort if CPU, memory, disk, architecture, time sync, listeners, or access
   controls fail.
 
@@ -101,7 +103,8 @@ verified. No infrastructure exists. See the Gate 1 closure record.
   installer.
 - Do not expose the daemon or grant docker-group access implicitly.
 - Record Engine and Compose versions.
-- Rerun prerequisites and inspect listeners.
+- Run `deploy/scripts/check_remote_prerequisites.sh` only after the approved
+  Gate 3 package and Docker installation, then inspect listeners.
 
 **Exit:** Docker is healthy; no DataHub image has been pulled.
 

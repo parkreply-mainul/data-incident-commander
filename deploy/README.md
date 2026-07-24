@@ -15,6 +15,25 @@ make remote-check
 make remote-plan
 ```
 
+Gate 2 uses the standalone, read-only base-host validator:
+
+```bash
+bash deploy/scripts/check_gate2_base_host.sh \
+  --expected-hostname dic-runtime-01
+```
+
+It requires only a pristine Ubuntu 24.04 base host and treats Docker and
+project workloads as failures. It accepts absent swap as deferred, performs no
+download, and changes nothing. OS Login, IAP, IAM, external-IP absence, and
+effective firewall policies remain console-side checks. The script can be
+streamed through the approved IAP session without a repository checkout.
+`make gate2-host-check` provides the same entry point when
+`GATE2_EXPECTED_HOSTNAME` is set.
+
+Gate 3 and later use `check_remote_prerequisites.sh` only after approved
+package and Docker installation. That checker requires Docker, Compose, curl,
+jq, git, and OpenSSL. Gate 2 must not attempt to satisfy it.
+
 Execution commands remain fail-closed without a configured remote environment
 and explicit approval variables. The DataHub quickstart path additionally
 requires runtime verification that its generated Compose resources are

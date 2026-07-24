@@ -66,8 +66,9 @@ Remaining Gate 2 uncertainties:
 
 - exact project ID confirmation outside Git;
 - region, zone, quota, and zonal capacity;
-- external-IP or alternative access path;
-- firewall and SSH source boundary;
+- IAP and OS Login availability and private operator IAM eligibility;
+- effective organization, folder, project, network, ingress, and egress
+  firewall-policy evidence;
 - itemized regional pricing, egress, logging, and tax; and
 - credit expiration, budget threshold, and teardown date.
 
@@ -126,13 +127,14 @@ and verifies:
 
 - exact project identity outside Git;
 - region and zone;
-- regional CPU, instance, disk, and external-IP quota;
+- regional CPU, instance, and disk quota;
 - exact `e2-standard-4` configuration and Ubuntu image;
 - 100 GB Balanced Persistent Disk lifecycle behavior;
-- public-IP or alternative access design;
-- default-deny firewall and SSH source restriction;
+- IAP-only SSH and OS Login design with no external VM IP;
+- least-privilege operator IAM and 2-Step Verification;
+- exact effective firewall-policy evidence and VM-scoped deny-all egress;
 - resource naming and labels;
-- itemized compute, disk, IPv4, network, snapshot, logging, and tax estimate;
+- itemized compute, disk, IAP, network, logging, and tax estimate;
 - trial expiration, budget threshold, and teardown date;
 - rollback targets; and
 - the user's explicit approval of that exact resource set.

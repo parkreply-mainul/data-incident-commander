@@ -50,12 +50,13 @@ and AWS is not recommended for the preferred runtime.
 ## Exact approval still required
 
 Gate 1B is complete. Gate 2 separately requires approval of the current
-itemized quote and tax, project identity, region/zone/SKU, quota,
-IP/firewall/disk resources, budget guardrail, runtime secret boundary, resource
-names, rollback targets, and resource creation. Later, separate approval is
-required before Docker installation, image pulls/DataHub startup, MCP
-installation, judge credentials, mutation evaluation, and destructive
-teardown.
+itemized quote and tax, project identity, region/zone/SKU, quota, immutable
+image, IAP/OS Login features, least-privilege IAM, effective firewall-policy
+evidence, VM-scoped deny-all egress, disk, budget-monitoring owner, resource
+names, teardown owner/schedule, rollback targets, and resource creation.
+Later, separate approval is required before swap, Docker installation, image
+pulls/DataHub startup, MCP installation, judge credentials, mutation
+evaluation, and destructive teardown.
 
 ## Commands after approval
 

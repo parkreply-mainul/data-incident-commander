@@ -1,4 +1,4 @@
-.PHONY: check setup start seed test integration-test api frontend-setup frontend-test frontend-build frontend remote-check remote-plan remote-deploy remote-verify remote-stop remote-clean smoke demo demo-check submission-check stop
+.PHONY: check setup start seed test integration-test api frontend-setup frontend-test frontend-build frontend gate2-host-check remote-check remote-plan remote-deploy remote-verify remote-stop remote-clean smoke demo demo-check submission-check stop
 
 VENV_DIR ?= .venv
 API_HOST ?= 127.0.0.1
@@ -63,6 +63,14 @@ frontend-build: frontend-setup
 frontend: frontend-setup
 	@npm --prefix frontend run dev -- --host 127.0.0.1 --port "$(FRONTEND_PORT)"
 
+gate2-host-check:
+	@test -n "$(GATE2_EXPECTED_HOSTNAME)" || { \
+		echo "ERROR: set GATE2_EXPECTED_HOSTNAME to the approved VM hostname." >&2; \
+		exit 2; \
+	}
+	@bash deploy/scripts/check_gate2_base_host.sh \
+		--expected-hostname "$(GATE2_EXPECTED_HOSTNAME)"
+
 remote-check:
 	@set -eu; \
 	for script in deploy/scripts/*.sh; do \
@@ -74,6 +82,7 @@ remote-check:
 	bash tests/deploy/test_docker_conflicts.sh >/dev/null 2>&1; \
 	bash tests/deploy/test_verify_datahub_health.sh >/dev/null 2>&1; \
 	bash tests/deploy/test_health_url_validation.sh >/dev/null 2>&1; \
+	bash tests/deploy/test_gate2_base_host.sh >/dev/null 2>&1; \
 	python3 -c 'compile(open("deploy/scripts/validate_health_urls.py", encoding="utf-8").read(), "deploy/scripts/validate_health_urls.py", "exec")'; \
 	test -f deploy/nginx/data-incident-commander.conf.template; \
 	rg -q 'location /api/' deploy/nginx/data-incident-commander.conf.template; \
