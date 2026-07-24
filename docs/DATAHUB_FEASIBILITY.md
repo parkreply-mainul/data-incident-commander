@@ -12,6 +12,12 @@ approximately 3.83 GiB on a host with only 8 GB physical memory.
 
 This sprint did not pull an image layer, create a container, or start DataHub.
 
+This verdict applies to the current **local Mac runtime**. Sprint 4C selected a
+fully remote single Linux VM as the primary future runtime strategy and a
+remote-DataHub/MCP plus local-application hybrid as backup. That selection does
+not authorize provisioning or startup. See
+[RUNTIME_STRATEGY.md](RUNTIME_STRATEGY.md).
+
 ## Evidence and official sources
 
 Reviewed on **2026-07-24**:
@@ -156,7 +162,8 @@ The profile resolves:
 - no need to enable Kubernetes, MCP, mutation tools, or Docker AI features.
 
 **NO-GO** applies if any criterion is missing. The current decision is NO-GO
-because the Docker memory and host-viability criteria are unresolved.
+for local startup because the Docker memory and host-viability criteria are
+unresolved. Remote provisioning is also NO-GO until separately approved.
 
 ## Planned startup and rollback
 

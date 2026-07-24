@@ -44,6 +44,37 @@ FastAPI + Pydantic backend
                DataHub OSS
 ```
 
+## Selected runtime topology
+
+Sprint 4C evaluated, rather than assumed, the proposed remote direction. The
+selected primary judging topology is one remote Linux VM:
+
+```text
+Judge browser
+      |
+  HTTPS application boundary
+      |
+React frontend
+      |
+FastAPI backend
+      |
+DataHub MCP Server
+      |
+DataHub OSS v1.6.0
+```
+
+Frontend, backend, MCP, and DataHub are co-located on private host/container
+networks; only the application HTTPS boundary is intended to be public. The
+backup development topology keeps DataHub OSS and MCP remote while running the
+backend/frontend locally.
+
+This is a selected architecture direction, not a deployed or runtime-verified
+system. MCP transport, authentication, ports, mutation capability, reverse
+proxy, and application deployment remain subject to their verification gates.
+Local DataHub startup on the 8 GB Mac remains blocked. See
+[RUNTIME_STRATEGY.md](RUNTIME_STRATEGY.md) and
+[REMOTE_RUNTIME_SECURITY.md](REMOTE_RUNTIME_SECURITY.md).
+
 The read and investigation path must use the required approved DataHub
 technology. DataHub OSS is authoritative for retrieved catalog and operational
 metadata. The application is authoritative only for its versioned

@@ -31,6 +31,15 @@ has run successfully on this host.
 | TypeScript | Requires verification | Requires verification | No | Project dependency; not constrained by reviewed DataHub docs. |
 | Vite | Requires verification | Requires verification | No | Project dependency; not constrained by reviewed DataHub docs. |
 
+## Runtime host selection
+
+Sprint 4C selected a future remote Linux VM baseline of at least 4 vCPU,
+16 GB RAM, and 50 GB SSD for evaluation. This is a project safety margin, not
+an official DataHub minimum or a provisioned resource. Linux distribution,
+architecture, provider, Docker Engine/Compose pins, and actual full-stack
+capacity remain unverified. DataHub OSS and CLI pins remain `v1.6.0` and
+`1.6.0`; no version changed in Sprint 4C.
+
 ## Host observations by sprint
 
 ### Sprint 2 host inspection

@@ -28,6 +28,13 @@ CLI/server compatibility and must not be interpreted as authorization to pull
 or start DataHub. All pending work requires its applicable gates and separate
 authorization.
 
+Sprint 4C selected a fully remote single Linux VM as the primary future demo
+runtime and a hybrid remote-DataHub/MCP topology as backup. No infrastructure
+has been provisioned. The local DataHub startup remains blocked, and the remote
+plan begins with separate budget and provisioning approval. See
+[RUNTIME_STRATEGY.md](RUNTIME_STRATEGY.md) and
+[REMOTE_DEPLOYMENT_PLAN.md](REMOTE_DEPLOYMENT_PLAN.md).
+
 For every step:
 
 - record the pre-change state;
@@ -169,9 +176,9 @@ remains unverified.
 ## 4. DataHub OSS
 
 **Status: Blocked.** DataHub OSS is selected and inspected, but not installed
-or started. First startup is blocked by the **NOT CURRENTLY FEASIBLE** memory
-verdict and requires both resolution of that blocker and separate
-authorization.
+or started. Local startup is blocked by the **NOT CURRENTLY FEASIBLE** memory
+verdict. The selected remote strategy is blocked on budget, provider,
+provisioning, security, and separate startup approvals.
 
 **Purpose:** Start the pinned local DataHub quickstart stack for development and
 verification.
