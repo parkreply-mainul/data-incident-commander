@@ -2,9 +2,11 @@
 
 ## Status and safety rules
 
-This is a future checklist, not an installation script. No step has been
-executed. Installation requires separate user authorization after official
-version selection.
+This is a staged checklist, not an installation script. Docker Desktop
+installation and basic runtime validation were completed in the separately
+authorized Sprint 4A, but the Docker step remains partially complete because
+its DataHub feasibility gates are pending. All later steps remain future work
+and require separate authorization after official version selection.
 
 For every step:
 
@@ -17,6 +19,10 @@ For every step:
 - review rollback before making the change.
 
 ## 1. Docker
+
+**Status:** Installation and basic runtime validation completed; DataHub
+feasibility gates remain pending. This step is not complete and does not
+authorize DataHub startup.
 
 **Purpose:** Provide the container engine required by the official local
 DataHub quickstart.
@@ -36,6 +42,52 @@ and settings.
 **Failure handling:** Stop. Capture the non-secret error and architecture or
 resource mismatch. Do not try alternative runtimes or privileged workarounds
 without a documented decision.
+
+**Completed in Sprint 4A (2026-07-24):**
+
+- installed the official Homebrew `docker-desktop` cask with
+  `brew install --cask docker`;
+- made the Docker CLI available;
+- observed Docker Engine responsive during the validation session;
+- made Docker Compose available;
+- observed native arm64 client and server architecture during the validation
+  session;
+- recorded Docker Desktop 4.83.0 (build 234302), CLI/Engine 29.6.2, and Compose
+  v5.3.1;
+- observed 8 CPUs and approximately 3.83 GiB daemon memory;
+- verified no containers, images, or volumes were created and Kubernetes is
+  disabled;
+- did not change Docker CPU, memory, disk, networking, Rosetta, or VMM settings.
+
+**Still pending before DataHub startup:**
+
+- verify compatibility with the selected pinned DataHub release;
+- verify all required images support Apple Silicon;
+- reconcile the host's approximately 3.83 GiB Docker memory allocation with
+  DataHub's documented tested 8 GiB allocation;
+- inspect the selected deployment configuration and image architecture;
+- determine whether this 8 GB host is viable; and
+- perform a fresh successful `make check`.
+
+Until every pending gate is satisfied and startup is separately authorized,
+later phases must not interpret Sprint 4A installation evidence as permission
+or readiness to start DataHub.
+
+Follow-up read-only verification established that the internal
+`EnableDockerAI=true` value is not merely an inert stored flag: Docker Desktop
+runs its bundled `docker-agent serve api` background process. It remains an
+installation default rather than a recorded user opt-in. Model Runner is
+stopped, no MCP profiles or connected MCP clients exist, no AI/MCP container is
+running, and Kubernetes is disabled. Sprint 4A did not invoke, configure, or
+alter any AI or MCP feature. The reviewed public Docker documentation does not
+define the internal settings-store key, so documentation should describe the
+observed states rather than equate that key with a configured AI workload.
+
+**Rollback clarification:** Docker's official application uninstaller is
+`/Applications/Docker.app/Contents/MacOS/uninstall`. Its use is destructive to
+local Docker data and therefore requires separate approval after inspecting
+and preserving unrelated state. A Homebrew cask uninstall likewise requires
+separate approval.
 
 ## 2. Python environment
 

@@ -2,11 +2,12 @@
 
 ## Scope
 
-This document records a read-only Sprint 2 inspection of the macOS host planned
-for future DataHub OSS, DataHub MCP Server, FastAPI, React/Vite, and one-command
-demo work. No packages were installed, no container or application service was
-started or stopped, and no compatibility claim is made from tool presence
-alone.
+This document records the Sprint 2 read-only inspection and the separately
+authorized Sprint 4A Docker Desktop installation and runtime validation on the
+macOS host planned for future DataHub OSS, DataHub MCP Server, FastAPI,
+React/Vite, and one-command demo work. Sprint 4A installed and started Docker
+Desktop only. It did not install or start DataHub or any project dependency,
+and Docker presence alone does not establish DataHub compatibility.
 
 Inspection date: **2026-07-24**
 
@@ -20,10 +21,10 @@ Repository command: `make check`
 | CPU | Apple M1, arm64, 8 cores | Detected; architecture compatibility remains unverified |
 | Physical memory | 8 GB | Warning: potentially constrained for a local multi-service stack |
 | Repository volume | 228 GiB total; approximately 102 GiB available by the checker's integer calculation (`df -h` displayed 103 GiB); 51% used | No immediate storage warning |
-| Docker CLI | Not found | Blocking for the planned container-based setup spike |
-| Docker Desktop | Application bundle not found in standard system or user application locations | Warning; a compatible alternative runtime may be acceptable |
-| Docker daemon | Could not be checked because the Docker CLI is absent | Blocking |
-| Docker Compose | Not found | Blocking for the planned container-based setup spike |
+| Docker CLI | `/usr/local/bin/docker`, 29.6.2, native `darwin/arm64` | Installed from the Docker Desktop bundle and executable |
+| Docker Desktop | `/Applications/Docker.app`, 4.83.0 (build 234302) | Installed through the official Homebrew cask; observed running during Sprint 4A |
+| Docker daemon | Docker Engine 29.6.2, `linux/arm64` (`aarch64` reported by `docker info`) | Observed reachable through the `desktop-linux` context during Sprint 4A |
+| Docker Compose | Docker Compose v5.3.1 | Installed and executable |
 | Python | `/usr/bin/python3`, Python 3.9.6 | Present; project compatibility unverified |
 | `python` alias | Not found | Optional; use `python3` unless verified tooling requires otherwise |
 | pip | `/usr/bin/pip3`, pip 21.2.4 for Python 3.9 | Present; project compatibility unverified |
@@ -35,7 +36,7 @@ Repository command: `make check`
 | Make | `/usr/bin/make`, GNU Make 3.81 | Present |
 | curl | `/usr/bin/curl`, 8.7.1 | Present |
 | Java | macOS launcher exists, but no Java runtime is installed | Optional pending official tooling verification |
-| Homebrew | `/opt/homebrew/bin/brew`, 6.0.11 | Present; not used by this sprint |
+| Homebrew | `/opt/homebrew/bin/brew`, 6.0.12 | Present; used for the authorized Docker Desktop cask installation |
 
 These findings describe the current host only. They do not select supported
 versions for the project.
@@ -61,27 +62,90 @@ backend, or frontend ports. The checker does not stop any listener. If a
 candidate port is occupied, it emits a warning so later setup can select or
 configure a non-conflicting port.
 
+## Sprint 4A Docker Desktop validation
+
+Installation command:
+
+```bash
+brew install --cask docker
+```
+
+Homebrew installed its official `docker-desktop` cask. The first invocation
+updated Homebrew metadata and its portable Ruby before installing Docker
+Desktop 4.83.0 (build 234302). Homebrew requested macOS administrator
+authentication to create command-line links. The unattended prompt was
+cancelled without supplying credentials; Docker Desktop's normal first-run flow
+subsequently created the links after the user completed its interactive setup.
+No password or credential was handled by the project.
+
+Observed runtime state during the Sprint 4A validation session:
+
+- Docker Desktop status: `running`;
+- Docker client: 29.6.2, `darwin/arm64`;
+- Docker Engine: 29.6.2, `linux/arm64`;
+- Docker Compose: v5.3.1;
+- active context: `desktop-linux`;
+- daemon architecture: `aarch64`;
+- daemon allocation reported by `docker info`: 8 CPUs and 4,108,632,064 bytes
+  (approximately 3.83 GiB) memory;
+- storage driver: `overlayfs`;
+- containers, images, volumes, and build cache: none;
+- networks: only Docker's expected `bridge`, `host`, and `none` defaults;
+- Kubernetes: disabled and stopped;
+- Docker disk usage: 0 B for images, containers, volumes, and build cache; and
+- no new TCP listeners were observed compared with the pre-install inspection.
+
+Docker Desktop's settings store contained no explicit CPU, memory, disk-size,
+swap, VMM, or Rosetta override keys. Therefore the 8-CPU and approximately
+3.83-GiB values above are runtime observations, while the disk limit, VMM,
+Rosetta integration, and other implicit defaults remain unverified.
+
+A follow-up read-only inspection found `EnableDockerAI=true` in Docker
+Desktop's settings store and a bundled `docker-agent serve api` background
+process. The flag is therefore not documented as merely inert: Docker's
+AI-assistant infrastructure is enabled at the Desktop level. This does not
+mean an AI workload or MCP integration was configured or used. The same
+inspection found:
+
+- Docker Model Runner stopped;
+- no Docker containers or local models;
+- Docker MCP Toolkit CLI present as part of the Desktop distribution, but no
+  MCP profiles;
+- detected MCP clients disconnected or unconfigured; and
+- Kubernetes disabled and stopped.
+
+The user independently confirmed that they did not enable Docker AI, Docker MCP
+Toolkit, Kubernetes, or another optional feature during setup. The observed
+Desktop-level AI flag and background service therefore appear to be installation
+defaults rather than user opt-in. Docker's public documentation describes
+Gordon (`docker ai`), Model Runner, and MCP Toolkit as separate capabilities,
+but the reviewed documentation does not define the internal
+`EnableDockerAI` settings-store key. Sprint 4A did not invoke an AI assistant,
+start Model Runner or an MCP gateway, connect an MCP client, or change any
+Docker setting.
+
+No Docker workload was started, and no image was pulled. This validates a
+working Apple Silicon Docker runtime only; it does **not** establish that the
+host resources or installed versions are compatible with DataHub.
+
 ## Blockers
 
-The planned local container-based DataHub OSS setup spike cannot proceed on
-this host until a compatible container environment is selected and made
-available:
-
-- Docker CLI is absent.
-- Docker daemon reachability cannot be established.
-- Docker Compose is absent.
-
-This document does not authorize installation. Compatible products and versions
-must first be checked against official DataHub requirements and project
-licensing or hackathon constraints.
+There is no Docker installation blocker after Sprint 4A. The DataHub setup
+spike remains gated on explicit authorization and the unresolved resource and
+version questions below.
 
 ## Warnings
 
 - The host has 8 GB of physical memory. A multi-service local stack may be
   constrained; official DataHub resource requirements and a practical startup
   measurement are still required.
-- Docker Desktop is absent. A compatible alternative container runtime may be
-  acceptable, but no Docker CLI or reachable daemon is currently available.
+- During the Sprint 4A validation session, the daemon received approximately
+  3.83 GiB of the host's 8 GB memory. Whether this is sufficient for DataHub is
+  not established.
+- Docker Desktop's internal `EnableDockerAI=true` default starts bundled
+  AI-assistant infrastructure even though the user did not opt in. No AI model,
+  MCP profile, connected MCP client, or AI/MCP container is active. Treat the
+  distinction as a transparency warning; no setting was changed.
 - Python 3.9.6 is present, but backend and DataHub tooling compatibility is
   unverified.
 - Node.js 25.9.0 and npm 11.12.1 are present, but Vite/frontend compatibility
@@ -118,14 +182,30 @@ Environment validation must precede installation. A successful check means
 only that the documented prerequisites are present; it does not prove DataHub
 compatibility or startup success.
 
-## Items requiring official verification
+## Resource recommendations for this 8 GB M1 host
+
+These are conservative project recommendations, **not verified DataHub
+requirements**:
+
+- retain the observed approximately 4 GiB Docker memory allocation for
+  non-DataHub validation rather than consuming nearly all host memory;
+- do not increase Docker's allocation or start DataHub until the selected
+  DataHub release's requirements are reconciled with an 8 GB host;
+- retain the current CPU allocation for now because no workload has been
+  benchmark-tested, and change it only if the DataHub spike justifies it;
+- keep Kubernetes disabled;
+- keep disk, networking, Rosetta, and VMM settings unchanged until the selected
+  images and official workflow are known; and
+- prefer a higher-memory host if the verified DataHub baseline cannot leave
+  adequate memory for macOS.
+
+## Items requiring official or runtime verification
 
 Before any installation or startup:
 
-- supported macOS and Apple Silicon status;
 - minimum and recommended CPU, memory, and disk resources;
-- supported Docker Desktop or alternative container runtime versions;
-- required Docker Compose form and version;
+- compatibility of Docker Desktop 4.83.0, Engine 29.6.2, and Compose v5.3.1
+  with the selected DataHub release;
 - supported Python and pip versions;
 - supported Node.js and npm versions for the selected Vite toolchain;
 - DataHub MCP Server distribution, runtime, and installation method;
@@ -138,9 +218,29 @@ Before any installation or startup:
 
 ## Readiness assessment
 
-The machine is **not yet ready** for the next container-based DataHub OSS setup
-spike because the Docker CLI, daemon access, and Compose are unavailable.
-The machine otherwise has the basic source-development commands and substantial
-free disk space. Readiness should be reassessed with `make check` after official
-requirements are reviewed and the user separately authorizes any necessary
-installation.
+During the Sprint 4A validation session, with Docker Desktop running,
+`make check` completed with 23 PASS, 5 WARN, and 0 FAIL. This is time-bound
+runtime evidence, not a permanent readiness guarantee. Current
+container-runtime readiness is conditional on Docker Desktop running and its
+daemon being reachable.
+
+A fresh successful `make check` is required immediately before every DataHub
+startup, container-based sprint, or demo run. Stopping Docker Desktop does not
+invalidate the verified installation, version, or arm64 evidence recorded
+above; it only makes the machine not currently ready for container work until
+Docker Desktop is running and the daemon passes a new check.
+
+Subject to that fresh check, the machine is ready for a separately authorized,
+resource-conscious DataHub OSS setup spike, but DataHub compatibility is not
+yet proven. The 8 GB host memory and observed approximately 3.83 GiB Docker
+allocation are material risks that must be evaluated before startup.
+
+## Rollback guidance
+
+Use Docker's official Docker Desktop uninstall workflow only with separate
+explicit approval. Docker documents the application uninstaller at
+`/Applications/Docker.app/Contents/MacOS/uninstall`; uninstalling removes local
+Docker containers, images, volumes, and other Docker data. Inspect and preserve
+any unrelated Docker state before a future uninstall. Homebrew cask removal
+must likewise be separately approved. Sprint 4A did not uninstall, delete,
+prune, or reset anything.
