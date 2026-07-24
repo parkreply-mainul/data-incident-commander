@@ -6,8 +6,17 @@ application planned exclusively for the DataHub Agent Hackathon in the
 instance and verified **DataHub MCP Server** operations to investigate real
 metadata at runtime.
 
-> **Status:** Sprint 1B is documentation and repository foundation only. The
-> application, integrations, scripts, UI, and write-back are not implemented.
+> **Status:** Sprint 3 technical verification is in progress. The application,
+> integrations, UI, and write-back are not implemented, and DataHub has not
+> been installed or started.
+
+## Current project status
+
+- Sprint 1: complete — repository and documentation foundation.
+- Sprint 2: complete — read-only macOS prerequisite validation.
+- Sprint 3: verification in progress — official DataHub requirements, versions,
+  ports, installation sequence, and MCP capabilities; no installation or
+  runtime validation yet.
 
 ## Project vision
 
