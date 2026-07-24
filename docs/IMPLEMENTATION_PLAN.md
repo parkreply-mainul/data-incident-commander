@@ -85,6 +85,11 @@ and the running tool inventory.
 Mutation capability is labeled verified or unavailable. No fake integration or
 invented tool name is accepted.
 
+**Sprint 8A preparation:** Typed secret-reference configuration, a
+documented-versus-observed capability inventory, a library-neutral client
+protocol, a fail-closed provider, and verified-DTO normalization contracts are
+implemented. The live inventory and every exit criterion above remain pending.
+
 ## Phase 4: typed contracts and investigation engine
 
 **Goal:** Implement the read-only, evidence-grounded investigation core.
@@ -234,6 +239,11 @@ scripts must fail clearly and clean up safely.
 
 **Exit criteria:** The one-command path succeeds from a documented clean
 environment and visibly fails when required dependencies are unavailable.
+
+**Sprint 8A preparation:** `remote-check` and `remote-plan` perform local
+validation and dry-run planning. Execution targets require protected
+configuration and explicit approvals. DataHub startup is still blocked at the
+remote Compose project-scope and resolved-configuration gate.
 
 ## Phase 9: comprehensive tests
 

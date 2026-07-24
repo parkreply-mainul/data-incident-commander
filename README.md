@@ -27,6 +27,9 @@ metadata at runtime.
   development persistence.
 - Sprint 7: implemented locally for review — accessible React/TypeScript/Vite
   desktop UI consuming the current API without fabricating unavailable results.
+- Sprint 8A: implemented locally for review — fail-closed remote deployment
+  planning and a typed, library-neutral DataHub MCP adapter boundary. No remote
+  runtime or live integration exists.
 
 ## Project vision
 
@@ -231,6 +234,23 @@ MCP are not connected. Future evidence, lineage, severity, ownership,
 remediation, memory, and write-back surfaces are visibly disabled.
 
 No screenshots are committed yet.
+
+## Sprint 8A remote and integration checks
+
+```bash
+make integration-test
+make remote-check
+make remote-plan
+```
+
+`integration-test` uses controlled contract doubles and never claims live
+DataHub success. `remote-check` validates deployment artifacts locally;
+`remote-plan` prints intended future actions. Remote execution targets are
+fail-closed without an approved environment and explicit gates.
+
+No infrastructure has been provisioned, no DataHub runtime or image has been
+started or pulled, no MCP package has been installed, and mutation remains
+disabled. See [the Sprint 8 runtime checkpoint](docs/SPRINT_8_RUNTIME_CHECKPOINT.md).
 
 ## Professional desktop UI
 

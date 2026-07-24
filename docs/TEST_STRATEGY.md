@@ -12,6 +12,12 @@ frontend client/component/accessibility contract tests and a bounded local
 FastAPI/Vite smoke path. Real DataHub/MCP and full browser E2E tests remain
 future work.
 
+Sprint 8A integration contract tests validate configuration, secret
+references, documented-versus-observed capabilities, unavailable readiness,
+library-neutral client doubles, verified DTO normalization, lineage integrity
+and limits, canonical payloads, and mutation-disabled enforcement. They do not
+install MCP, connect to DataHub, or satisfy the live integration gate.
+
 ## Acceptance rules
 
 - The golden demo cannot pass with fixtures, fake adapters, hard-coded answers,

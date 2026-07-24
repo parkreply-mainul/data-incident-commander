@@ -213,6 +213,15 @@ tempCodeRunnerFile.py
 frontend/node_modules/
 frontend/dist/
 
+# Remote runtime state and secrets. The global ENV/ rule also matches this
+# directory on case-insensitive filesystems, so re-include the directory and
+# allowlist only its public template.
+!deploy/env/
+deploy/env/*
+!deploy/env/remote.env.example
+deploy/runtime/
+deploy/diagnostics/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/

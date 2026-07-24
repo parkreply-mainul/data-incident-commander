@@ -12,6 +12,20 @@ confirmed here. DataHub behavior must be verified against official
 documentation and the actual running DataHub OSS and MCP tool inventory before
 adapter implementation.
 
+Sprint 8A introduces a typed DataHub MCP boundary under
+`integrations/datahub`. It stores no token value, selects no MCP library, and
+parses no guessed raw response. Capability readiness separates documentation
+from UTC-timestamped runtime observation. Configuration, client availability,
+required-tool observation, normalization verification, implemented
+orchestration, and operational availability are separate gates. Capability
+verification alone cannot mark the provider ready. The provider is not the
+application default and remains operationally unavailable until verified
+runtime orchestration and raw-result adapters exist.
+
+Provider-neutral remote artifacts plan Ubuntu 24.04, project-labelled Docker
+resources, private DataHub/MCP services, loopback application services, and an
+HTTPS-only proxy. They do not provision infrastructure or authorize startup.
+
 ## Architectural objectives
 
 DataIncident Commander must:

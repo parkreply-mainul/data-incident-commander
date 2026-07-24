@@ -3,8 +3,9 @@
 ## Status
 
 This is a future execution plan for the selected fully remote single-VM
-strategy. No infrastructure, DNS, certificate, firewall, repository checkout,
-Docker installation, image pull, or service startup occurred in Sprint 4C.
+strategy. Sprint 8A adds provider-neutral dry-run and fail-closed artifacts
+under `deploy/`. No infrastructure, DNS, certificate, firewall, repository
+checkout, Docker installation, image pull, or service startup has occurred.
 
 Commands appear only where current official documentation verifies their
 meaning. Provider resource IDs, regions, image slugs, DNS names, usernames,
@@ -145,9 +146,22 @@ public listeners, architecture failure, or unhealthy prerequisites.
 
 ## 10. Health verification
 
-- verify expected containers and the one-shot upgrade result;
-- require healthy Kafka, MySQL, OpenSearch, and GMS checks;
-- verify the DataHub UI and GMS only through intended private paths;
+- record the exact runtime-observed Compose service inventory before
+  verification;
+- compare the complete sorted project service-label inventory exactly and fail
+  on missing, unexpected, duplicate, orphaned, or unlabelled containers;
+- require each expected project-labelled container to exist and run;
+- wait while a Docker health check is `starting`, require `healthy`, and fail
+  on unhealthy or non-running states;
+- fail closed for containers without Docker health checks until a verified
+  service-level probe is configured;
+- verify runtime-observed application/GMS/frontend health URLs through intended
+  private paths without credentials in URLs;
+- validate every URL before any request: loopback is implicit, while RFC1918
+  and IPv6 ULA literals require exact membership in the protected approved-host
+  allowlist; reject public, link-local/metadata, special, malformed, or
+  unapproved destinations;
+- do not treat container health alone as complete DataHub readiness;
 - record actual versions, listeners, memory, disk, and restart behavior;
 - verify no unrelated Docker object exists or was altered; and
 - retain redacted diagnostics.
@@ -231,3 +245,15 @@ Normal rollback order:
 Never run Docker prune, DataHub `nuke`, recursive deletion, or broad provider
 deletion as an implicit rollback. Destructive cleanup requires resolved
 resource identifiers and separate approval.
+
+## Sprint 8A automation boundary
+
+`make remote-check` performs local shell syntax, help-contract, proxy-template,
+and secret-placeholder checks. `make remote-plan` prints host, Docker, and
+DataHub actions without changing state. Execution targets require a
+noncommitted environment, approval variables, Ubuntu 24.04, and project gates.
+
+DataHub startup stops at an implementation gate until an approved remote host
+can resolve the official v1.6.0 configuration and prove Compose project
+ownership. Stop, restart, and cleanup remain blocked rather than guessing
+unsafe commands.

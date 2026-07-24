@@ -1,5 +1,12 @@
 # Future Installation Plan
 
+Sprint 8A adds an unexecuted Ubuntu 24.04 Docker installation script based on
+Docker's official apt-repository procedure. It requires an explicitly selected
+Docker package version and approvals, refuses automatic conflicting-package
+removal, and does not alter docker-group membership. MCP installation remains
+pending: official documentation demonstrates `uvx
+mcp-server-datahub@latest`, while this project requires a tested exact pin.
+
 ## Status and safety rules
 
 This is a staged checklist, not an installation script.
