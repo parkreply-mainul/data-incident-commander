@@ -3,9 +3,9 @@
 ## Status
 
 This matrix separates versions stated by official DataHub documentation from
-versions that still require selection and runtime validation. Sprint 4A
-installed Docker Desktop only; no DataHub or application package has been
-installed.
+versions that still require selection and runtime validation. Sprint 4B
+selected the DataHub OSS and CLI pins and installed only the CLI in an ignored
+repository-local virtual environment. DataHub OSS has not been pulled or run.
 
 Reviewed on **2026-07-24** against:
 
@@ -18,13 +18,13 @@ has run successfully on this host.
 
 | Component | Minimum | Recommended | Verified? | Notes |
 | --- | --- | --- | --- | --- |
-| Python | 3.10 | Requires verification | Official docs | Current quickstart requires Python 3.10+. Host Python 3.9.6 does not meet that documented requirement. |
+| Python | 3.10 | 3.11 for the isolated CLI | Official docs and local runtime | Current quickstart requires Python 3.10+. Homebrew Python 3.11.15 is installed for `.venv`; macOS `/usr/bin/python3` remains 3.9.6 and unchanged. |
 | Node.js | Requires verification | Requires verification | No | Project frontend and self-hosted MCP version requirements must be selected. Official self-hosted MCP instructions use `uvx`, not Node.js. |
 | npm | Requires verification | Requires verification | No | Must match the selected Node.js and Vite toolchain. |
-| Docker | Requires verification | Requires verification | Runtime only | Docker Desktop 4.83.0 (build 234302), CLI 29.6.2, and Engine 29.6.2 are installed and working on arm64. DataHub compatibility remains unverified because the quickstart does not state an exact engine/Desktop version. |
+| Docker | Requires verification | Requires verification | Runtime only | Docker Desktop 4.83.0 (build 234302), CLI 29.6.2, and Engine 29.6.2 were observed working on arm64 during validation sessions. DataHub compatibility remains unverified because the quickstart does not state an exact engine/Desktop version. |
 | Docker Compose | v2 | Requires verification | Official docs and runtime | Quickstart explicitly requires Compose v2; installed Compose is v5.3.1. Compatibility with the selected DataHub release remains unverified. |
-| DataHub OSS | Requires verification | Requires verification | Current docs are 1.6.0 | The current documentation site is versioned 1.6.0 and quickstart shows `v1.6.0` as a pinning example. The project has not selected or run it. |
-| DataHub CLI | Requires verification | Requires verification | Install method only | Official methods are Homebrew and the `acryl-datahub` pip package. Pin must be chosen with the OSS release. |
+| DataHub OSS | v1.6.0 selected | v1.6.0 selected | Official release metadata | GitHub reports v1.6.0 as the latest stable release. It is selected but has not been pulled or run. |
+| DataHub CLI | 1.6.0 selected | 1.6.0 selected | PyPI and local runtime | Exact stable `acryl-datahub==1.6.0` exists, requires Python 3.10+, matches the OSS release train, and reports CLI 1.6.0 from `.venv`. Runtime server compatibility remains unproven until startup. |
 | MCP Server | Requires verification | Requires verification | Partial | Official docs state mutation tools require self-hosted server v0.5.0+, but this does not establish the minimum for read-only project needs. |
 | FastAPI | Requires verification | Requires verification | No | Project dependency; not constrained by reviewed DataHub docs. |
 | React | Requires verification | Requires verification | No | Project dependency; not constrained by reviewed DataHub docs. |
@@ -55,6 +55,22 @@ that the daemon is permanently running. Compatibility with the selected
 DataHub release and its images remains unverified.
 
 See [ENVIRONMENT_VALIDATION.md](ENVIRONMENT_VALIDATION.md).
+
+### Sprint 4B selection and isolated CLI validation
+
+- selected DataHub OSS `v1.6.0`, the latest stable GitHub release observed on
+  2026-07-24;
+- selected exact stable `acryl-datahub==1.6.0` because PyPI publishes that
+  release-train match and declares Python 3.10+;
+- installed Homebrew Python 3.11.15 without replacing system Python;
+- created ignored repository-local `.venv`;
+- verified pip 26.1.2 and DataHub CLI 1.6.0 from `.venv`; and
+- confirmed the CLI was not installed into system Python or the Homebrew
+  interpreter's global site-packages.
+
+The exact pin is defensible but actual CLI/server interoperability is still a
+runtime question. Newer `1.6.0.x` CLI patch releases exist, but Sprint 4B did
+not silently substitute one for the exact OSS release-train pin.
 
 ## Pinning rule
 

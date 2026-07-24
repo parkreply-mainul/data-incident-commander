@@ -25,7 +25,8 @@ Repository command: `make check`
 | Docker Desktop | `/Applications/Docker.app`, 4.83.0 (build 234302) | Installed through the official Homebrew cask; observed running during Sprint 4A |
 | Docker daemon | Docker Engine 29.6.2, `linux/arm64` (`aarch64` reported by `docker info`) | Observed reachable through the `desktop-linux` context during Sprint 4A |
 | Docker Compose | Docker Compose v5.3.1 | Installed and executable |
-| Python | `/usr/bin/python3`, Python 3.9.6 | Present; project compatibility unverified |
+| System Python | `/usr/bin/python3`, Python 3.9.6 | Present and unchanged; not used for the DataHub CLI |
+| Isolated CLI Python | `/opt/homebrew/opt/python@3.11/bin/python3.11`, Python 3.11.15 | Installed in Sprint 4B; `.venv` uses it |
 | `python` alias | Not found | Optional; use `python3` unless verified tooling requires otherwise |
 | pip | `/usr/bin/pip3`, pip 21.2.4 for Python 3.9 | Present; project compatibility unverified |
 | `pip` alias | Not found | Optional; use `pip3` unless verified tooling requires otherwise |
@@ -130,9 +131,11 @@ host resources or installed versions are compatible with DataHub.
 
 ## Blockers
 
-There is no Docker installation blocker after Sprint 4A. The DataHub setup
-spike remains gated on explicit authorization and the unresolved resource and
-version questions below.
+There is no Docker or isolated CLI installation blocker. DataHub startup is
+currently blocked because Docker exposes approximately 3.83 GiB while official
+quickstart documentation records a tested 8 GB Docker allocation. This 8 GB
+physical-memory host cannot provide the full baseline without leaving
+effectively no memory for macOS.
 
 ## Warnings
 
@@ -218,22 +221,40 @@ Before any installation or startup:
 
 ## Readiness assessment
 
-During the Sprint 4A validation session, with Docker Desktop running,
-`make check` completed with 23 PASS, 5 WARN, and 0 FAIL. This is time-bound
-runtime evidence, not a permanent readiness guarantee. Current
-container-runtime readiness is conditional on Docker Desktop running and its
-daemon being reachable.
+Readiness has three separate meanings:
 
-A fresh successful `make check` is required immediately before every DataHub
-startup, container-based sprint, or demo run. Stopping Docker Desktop does not
-invalidate the verified installation, version, or arm64 evidence recorded
-above; it only makes the machine not currently ready for container work until
-Docker Desktop is running and the daemon passes a new check.
+- **Installation readiness:** Docker Desktop installation and the isolated
+  Python 3.11/DataHub CLI setup are valid. Stopping Docker Desktop does not
+  invalidate their installed versions or the historical arm64 evidence.
+- **Generic prerequisite readiness:** `make check` verifies command
+  availability, generic host prerequisites, candidate port availability, and
+  time-bound Docker daemon reachability. It does not evaluate or override
+  DataHub-specific resource feasibility.
+- **DataHub startup feasibility:** Local DataHub startup on this host is
+  **NOT CURRENTLY FEASIBLE** under the documented tested 8 GB Docker
+  allocation. Docker exposes approximately 3.83 GiB on a host with only 8 GB
+  physical memory.
 
-Subject to that fresh check, the machine is ready for a separately authorized,
-resource-conscious DataHub OSS setup spike, but DataHub compatibility is not
-yet proven. The 8 GB host memory and observed approximately 3.83 GiB Docker
-allocation are material risks that must be evaluated before startup.
+A fresh successful `make check` remains necessary immediately before any
+container work, but it is not sufficient authorization or evidence to start
+DataHub. Startup remains blocked until a different runtime strategy or newly
+verified resource evidence resolves the memory issue and separate startup
+authorization is granted.
+
+## Sprint 4B pre-start observation
+
+During the Sprint 4B session, with Docker Desktop running, a fresh
+`make check` completed with 23 PASS, 5 WARN, and 0 FAIL. This confirms
+time-bound daemon reachability and prerequisite presence only.
+
+Homebrew Python 3.11.15 and an ignored `.venv` were added for the isolated
+DataHub CLI. The virtual environment reports pip 26.1.2 and DataHub CLI 1.6.0.
+Neither system Python nor the Homebrew Python global site-packages contains
+`acryl-datahub`.
+
+The passing result preserves the generic prerequisite observation; it does not
+change the **NOT CURRENTLY FEASIBLE** DataHub startup verdict above. No DataHub
+image was pulled and no DataHub service was started.
 
 ## Rollback guidance
 

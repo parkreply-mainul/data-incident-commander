@@ -59,8 +59,9 @@ The quickstart documents two CLI installation methods:
 - Homebrew: the `datahub-project/tap/datahub` formula; and
 - pip: the `acryl-datahub` Python package.
 
-The Homebrew formula manages an isolated Python environment. No installation
-method has yet been selected for DataIncident Commander.
+The Homebrew formula manages an isolated Python environment. Sprint 4B instead
+selected the documented pip method inside a repository-local virtual
+environment and pinned `acryl-datahub==1.6.0`.
 
 ### Official quickstart workflow
 
@@ -92,8 +93,9 @@ deployment. Production deployment is outside the hackathon MVP.
 
 ## Needs runtime verification
 
-- Apple Silicon compatibility for the selected DataHub release and every
-  quickstart image.
+- Successful execution of the selected DataHub release and every quickstart
+  image on Apple Silicon. Sprint 4B registry-manifest inspection found arm64
+  variants for all seven resolved images, but no image was pulled or run.
 - Compatibility with macOS 26.5.2.
 - Whether the current 8 GB host can allocate the documented 8 GB Docker
   baseline while keeping macOS stable.
@@ -102,8 +104,6 @@ deployment. Production deployment is outside the hackathon MVP.
 - Whether swap behavior in Docker Desktop satisfies the documented baseline.
 - Required free disk beyond the documented 13 GB quickstart baseline after
   images, volumes, sample data, logs, and project services are included.
-- The DataHub CLI version that should be pinned.
-- The DataHub OSS release that should be pinned.
 - Successful image pulls and startup on arm64.
 - Health of every quickstart service.
 - UI accessibility at the documented local URL.
@@ -122,10 +122,15 @@ deployment. Production deployment is outside the hackathon MVP.
 
 ## Safety gate
 
-No installation or startup should occur until:
+The isolated CLI installation is complete. DataHub startup must not occur
+until:
 
-1. the version matrix has candidate pins;
-2. Docker licensing and resource allocation are accepted by the user;
-3. rollback steps are reviewed;
-4. the prerequisite checker passes required checks; and
-5. runtime validation is authorized as a separate sprint action.
+1. the selected `v1.6.0` release and `acryl-datahub==1.6.0` pin remain
+   acceptable;
+2. the 8 GB tested Docker allocation is available or a separately documented,
+   evidence-based exception is accepted;
+3. the 8 GB physical-memory host is judged viable without weakening the
+   official baseline;
+4. rollback steps and project-only cleanup boundaries are reviewed;
+5. a fresh `make check` passes required checks; and
+6. first startup receives separate explicit authorization.

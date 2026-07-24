@@ -33,10 +33,8 @@ No project port has been selected.
 
 ## Unknown ports requiring runtime verification
 
-- Host-exposed quickstart ports other than the documented UI and GMS example.
-- Internal MySQL port and whether it is exposed to the host.
-- Internal OpenSearch port and whether it is exposed to the host.
-- Internal Kafka port and whether it is exposed to the host.
+- Whether the pinned configuration's declared host mappings are usable when
+  the stack actually starts.
 - DataHub Actions endpoints, if any are host-exposed.
 - Health-check endpoints and their ports.
 - Any callback or transport port required by the selected MCP client.
@@ -44,6 +42,29 @@ No project port has been selected.
 
 The actual Compose file generated for the pinned release must be inspected
 before startup, then compared with listeners after startup.
+
+## Pinned v1.6.0 pre-start inspection
+
+Sprint 4B resolved the official
+`docker/quickstart/docker-compose.quickstart-profile.yml` file at tag
+`v1.6.0` with `DATAHUB_VERSION=v1.6.0`. This did not start services or pull
+images.
+
+| Compose service | Declared published host port(s) | Runtime status |
+| --- | --- | --- |
+| `frontend-quickstart` | 9002 | Not started |
+| `datahub-gms-quickstart` | 8080, 4319 | Not started |
+| `mysql` | 3306 | Not started |
+| `opensearch` | 9200 | Not started |
+| `kafka-broker` | 9092 | Not started |
+| `datahub-actions-quickstart` | None | Not started |
+| `system-update-quickstart` | None | Not started |
+
+The configuration declares 4319 even though the generic prerequisite checker
+does not currently check it. A fresh collision check for all six distinct
+published ports—3306, 4319, 8080, 9002, 9092, and 9200—is required before
+startup. Declared configuration is not proof of a successful bind or healthy
+service.
 
 ## Generic candidate ports are not defaults
 

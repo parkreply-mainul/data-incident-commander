@@ -2,11 +2,31 @@
 
 ## Status and safety rules
 
-This is a staged checklist, not an installation script. Docker Desktop
-installation and basic runtime validation were completed in the separately
-authorized Sprint 4A, but the Docker step remains partially complete because
-its DataHub feasibility gates are pending. All later steps remain future work
-and require separate authorization after official version selection.
+This is a staged checklist, not an installation script.
+
+**Completed preparation:**
+
+- Docker Desktop installation and basic runtime validation;
+- isolated Homebrew Python 3.11 environment;
+- repository-local ignored `.venv`;
+- pinned `acryl-datahub==1.6.0` CLI installation and version validation; and
+- pre-start Compose, image-manifest, and port inspection.
+
+**Still pending:**
+
+- DataHub image pulls;
+- first DataHub startup;
+- runtime health verification;
+- NYC Taxi ingestion;
+- MCP installation and capability inspection;
+- backend and frontend setup; and
+- smoke tests.
+
+The Docker step remains partially complete because its DataHub memory
+feasibility gate is unresolved. Completed preparation does not verify
+CLI/server compatibility and must not be interpreted as authorization to pull
+or start DataHub. All pending work requires its applicable gates and separate
+authorization.
 
 For every step:
 
@@ -20,9 +40,10 @@ For every step:
 
 ## 1. Docker
 
-**Status:** Installation and basic runtime validation completed; DataHub
-feasibility gates remain pending. This step is not complete and does not
-authorize DataHub startup.
+**Status: Partially complete.** Installation, basic runtime validation, pinned
+configuration inspection, and registry-manifest architecture checks completed.
+The memory feasibility gate remains unresolved. This step is not complete and
+does not authorize DataHub startup.
 
 **Purpose:** Provide the container engine required by the official local
 DataHub quickstart.
@@ -61,11 +82,11 @@ without a documented decision.
 
 **Still pending before DataHub startup:**
 
-- verify compatibility with the selected pinned DataHub release;
-- verify all required images support Apple Silicon;
+- prove runtime compatibility with pinned DataHub `v1.6.0`;
+- run all required images on Apple Silicon; registry manifests advertise arm64
+  variants, but this is not runtime proof;
 - reconcile the host's approximately 3.83 GiB Docker memory allocation with
   DataHub's documented tested 8 GiB allocation;
-- inspect the selected deployment configuration and image architecture;
 - determine whether this 8 GB host is viable; and
 - perform a fresh successful `make check`.
 
@@ -91,6 +112,10 @@ separate approval.
 
 ## 2. Python environment
 
+**Status: Completed.** The isolated CLI Python environment was completed in
+Sprint 4B. This does not select
+the future backend interpreter or dependencies.
+
 **Purpose:** Provide an isolated supported Python for project tooling and the
 DataHub CLI path if pip is selected.
 
@@ -108,7 +133,16 @@ exact path. Do not remove or modify macOS system Python.
 **Failure handling:** Stop on interpreter, architecture, certificate, or pip
 mismatch. Do not install into system Python as a fallback.
 
+**Sprint 4B result:** Installed Homebrew Python 3.11.15, created ignored
+repository-local `.venv`, and verified pip 26.1.2. `/usr/bin/python3` remains
+3.9.6. Homebrew installed `mpdecimal` and refreshed the Python formula's
+required `ca-certificates`, `openssl@3`, and `sqlite` dependencies.
+
 ## 3. DataHub CLI
+
+**Status: Completed.** Isolated CLI installation and version validation are
+complete. CLI/server compatibility remains unverified until an authorized
+runtime test.
 
 **Purpose:** Provide the official CLI used to run and manage local quickstart.
 
@@ -126,7 +160,18 @@ the selected CLI installation. Preserve unrelated packages and environments.
 **Failure handling:** Stop on dependency or version conflict. Do not mix
 Homebrew and pip installations to bypass the failure.
 
+**Sprint 4B result:** Installed exact `acryl-datahub==1.6.0` only inside
+`.venv`. It reports DataHub CLI 1.6.0 on Python 3.11.15. System Python and the
+Homebrew Python global site-packages do not contain `acryl-datahub`. The pin
+matches the selected OSS `v1.6.0` release train; actual interoperability
+remains unverified.
+
 ## 4. DataHub OSS
+
+**Status: Blocked.** DataHub OSS is selected and inspected, but not installed
+or started. First startup is blocked by the **NOT CURRENTLY FEASIBLE** memory
+verdict and requires both resolution of that blocker and separate
+authorization.
 
 **Purpose:** Start the pinned local DataHub quickstart stack for development and
 verification.
@@ -147,7 +192,30 @@ approval. Back up any state that must survive.
 run destructive reset or nuke commands. Classify image, architecture, port,
 memory, disk, or health failure before retrying.
 
+**Sprint 4B pre-start result:** Selected `v1.6.0`. The pinned CLI exposes no
+documented dry-run/config-only quickstart option, so `quickstart` was not
+invoked. The exact official Compose file selected by the CLI was instead
+downloaded to temporary storage and resolved with `docker compose config`.
+Expected inventory: 7 services, 7 images, 3 named volumes, 4 health checks, and
+6 distinct published host ports. All seven image manifests advertise arm64;
+no image layer was pulled.
+
+Planned startup command, only after every gate and separate approval:
+
+```bash
+DATAHUB_TELEMETRY_ENABLED=false .venv/bin/datahub docker quickstart \
+  --version v1.6.0 --arch arm64
+```
+
+Planned first rollback is the CLI's official stop workflow. The exact stop
+command and generated Compose path must be captured during startup. Removing
+project-created volumes, networks, images, or local quickstart state is a
+separate destructive action requiring explicit approval; never use prune or
+an unrestricted cleanup command.
+
 ## 5. Health verification
+
+**Status: Pending.** Requires an authorized, successful DataHub startup.
 
 **Purpose:** Prove that the actual DataHub services are reachable before sample
 data or MCP work.
@@ -167,6 +235,8 @@ approved official stop workflow; do not delete state.
 steps. Never substitute a fixture, screenshot, or mock response.
 
 ## 6. NYC Taxi dataset
+
+**Status: Pending.** Requires successful DataHub runtime health verification.
 
 **Purpose:** Load a synthetic, public-safe metadata graph for the planted
 freshness incident.
@@ -190,6 +260,9 @@ observed capability; do not hard-code expected success.
 
 ## 7. MCP Server
 
+**Status: Pending.** No MCP package or capability has been installed or
+runtime-inspected.
+
 **Purpose:** Expose verified DataHub metadata operations to the future agent.
 
 **Verification:**
@@ -209,6 +282,9 @@ enable mutations, or substitute direct APIs during the read capability spike.
 
 ## 8. Backend
 
+**Status: Pending.** No backend environment or application dependency has been
+installed.
+
 **Purpose:** Provide the future FastAPI/Pydantic application boundary after the
 DataHub/MCP contracts are verified.
 
@@ -227,6 +303,9 @@ fake MCP responses in the live runtime path.
 
 ## 9. Frontend
 
+**Status: Pending.** No frontend environment or application dependency has
+been installed.
+
 **Purpose:** Provide the future React/TypeScript/Vite desktop interface.
 
 **Verification:**
@@ -244,6 +323,9 @@ after confirming their repository-local paths.
 failure. Do not replace live backend behavior with a screenshot-only demo.
 
 ## 10. Smoke tests
+
+**Status: Pending.** Requires the verified DataHub, MCP, backend, and frontend
+runtime path.
 
 **Purpose:** Prove the complete environment performs real DataHub-backed work.
 
@@ -269,7 +351,9 @@ Installation is not authorized until the following are complete:
 - official requirements and licenses reviewed;
 - candidate versions recorded;
 - Apple Silicon feasibility resolved;
-- resource allocation accepted;
+- Docker has the documented tested 8 GB allocation, or an evidence-based
+  exception is explicitly accepted without misrepresenting official guidance;
+- viability of this 8 GB physical-memory host is resolved;
 - ports reviewed;
 - rollback approved;
 - secrets strategy defined; and
