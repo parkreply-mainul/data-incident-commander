@@ -16,8 +16,10 @@ verifies them.
 
 **Status: Blocked.**
 
-- treat OVHcloud B3-16 in Gravelines as the provisional primary and Hetzner
-  CCX23 in Nuremberg as the backup;
+- follow the Sprint 8C order: Google Cloud Free Trial as the primary free
+  route, OVHcloud Public Cloud trial as the free fallback, and paid OVHcloud
+  B3-16 in Gravelines only as the last resort;
+- treat AWS as not recommended for the preferred runtime;
 - obtain explicit account, payment, provisioning, and budget approval;
 - recheck hackathon rules, provider price, region capacity, and account limits;
 - select Linux architecture and a supported distribution;
@@ -25,9 +27,11 @@ verifies them.
 - record every billable resource and deletion owner; and
 - define judging and teardown dates.
 
-No provider command is documented yet. The planning selections are not verified
-account/region resource identifiers, and no credential path or all-in quote has
-been approved.
+No provider command is documented yet. Gate 1A research authorizes none of
+these actions. Account use or creation and trial-eligibility actions require
+Gate 1B approval; infrastructure always requires separate Gate 2 approval.
+The planning selections are not verified account/region resource identifiers,
+and no credential path or all-in quote has been approved.
 
 ## 2. Network boundary before compute
 

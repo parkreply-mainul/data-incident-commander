@@ -1,5 +1,10 @@
 # Budget Optimization
 
+> Historical Sprint 4D paid-route analysis. Sprint 8C Gate 1A supersedes the
+> provider order: Google Cloud Free Trial is the primary free route, OVHcloud
+> Public Cloud trial is the free fallback, paid OVHcloud B3-16 is the last
+> resort, and AWS is not recommended for the preferred runtime.
+
 ## Decision basis
 
 All calculations were prepared on **2026-07-24**. They are estimates before

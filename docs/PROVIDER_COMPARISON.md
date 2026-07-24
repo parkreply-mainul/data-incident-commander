@@ -1,5 +1,10 @@
 # Provider Comparison
 
+> Historical Sprint 4D paid-provider comparison. Sprint 8C Gate 1A supersedes
+> its provider order: Google Cloud Free Trial is the primary free route,
+> OVHcloud Public Cloud trial is the free fallback, paid OVHcloud B3-16 is the
+> last resort, and AWS is not recommended for the preferred runtime.
+
 ## Scope and evidence rules
 
 Research was performed on **2026-07-24** using official provider, DataHub, and

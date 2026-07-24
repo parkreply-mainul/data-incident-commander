@@ -1,5 +1,10 @@
 # Cost and Lifecycle
 
+> Historical Sprint 4D paid-cost baseline. Sprint 8C Gate 1A now evaluates
+> Google Cloud Free Trial first, OVHcloud Public Cloud trial second, and paid
+> OVHcloud B3-16 only as the last resort. AWS is not recommended for the
+> preferred runtime.
+
 ## Scope and source date
 
 This is a planning estimate, not a purchase authorization or provider

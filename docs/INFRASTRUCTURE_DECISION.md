@@ -1,5 +1,10 @@
 # Infrastructure Decision
 
+> Historical Sprint 4D paid-route decision. Sprint 8C Gate 1A now evaluates
+> Google Cloud Free Trial first, OVHcloud Public Cloud trial second, and this
+> paid OVHcloud B3-16 configuration only as the last resort. AWS is not
+> recommended for the preferred runtime.
+
 ## Selected plan
 
 | Decision | Selection |

@@ -39,19 +39,22 @@ only a conditional, separately approved write-back fallback. See
 [RUNTIME_ARCHITECTURE_DECISION.md](RUNTIME_ARCHITECTURE_DECISION.md) and
 [SPRINT_8C_LIVE_RUNTIME_PLAN.md](SPRINT_8C_LIVE_RUNTIME_PLAN.md).
 
-The provisional primary remains OVHcloud B3-16 in Gravelines: 4 vCore, 16 GB
-RAM, and 100 GB NVMe, subject to current availability and quote. The funded
-minimum remains $130 before tax and the maximum guardrail remains $175 before
-tax through teardown. Hetzner CCX23 remains the backup.
+Sprint 8C Gate 1A supersedes the earlier provider priority: Google Cloud Free
+Trial is the primary free route, OVHcloud Public Cloud trial is the free
+fallback, and paid OVHcloud B3-16 in Gravelines is the last resort. AWS is not
+recommended for the preferred runtime. The paid fallback retains the funded
+minimum of $130 before tax and maximum guardrail of $175 before tax through
+teardown.
 
 ## Exact approval still required
 
-The user must explicitly approve provider/account use, terms, payment method,
-current all-in quote and tax, region/SKU, public IP/firewall/disk resources,
-the $175 guardrail, runtime secret storage, and resource creation. Later,
-separate approval is required before Docker installation, image pulls/DataHub
-startup, MCP installation, judge credentials, mutation evaluation, and
-destructive teardown.
+Gate 1B requires explicit approval before provider-account use or creation,
+terms acceptance, payment or identity verification, and trial activation.
+Gate 2 separately requires approval of the current all-in quote and tax,
+region/SKU, public IP/firewall/disk resources, budget guardrail, runtime secret
+storage, and resource creation. Later, separate approval is required before
+Docker installation, image pulls/DataHub startup, MCP installation, judge
+credentials, mutation evaluation, and destructive teardown.
 
 ## Commands after approval
 

@@ -18,10 +18,14 @@ state, incurs cost, handles a credential, or enables mutation.
 
 ## Runtime target
 
-Primary target: the selected remote single-VM topology, provisionally OVHcloud
-B3-16 in Gravelines, with Ubuntu LTS, at least 4 vCPU, 16 GB RAM, and 50 GB
-available SSD. These are project deployment gates, not a claimed formal
-production minimum.
+Primary topology remains a remote single VM with Ubuntu LTS, at least 4 vCPU,
+16 GB RAM, and 50 GB available SSD. Gate 1A research selects Google Cloud's
+Free Trial as the first account-verification route, OVHcloud's Public Cloud
+trial as the free fallback, and the previously reviewed OVHcloud B3-16 in
+Gravelines as the paid last resort. AWS is not recommended for the preferred
+runtime. These are gated candidates, not provisioned resources or a claimed
+formal production minimum. See
+[SPRINT_8C_GATE_1_DECISION.md](SPRINT_8C_GATE_1_DECISION.md).
 
 The free route is investigated first, but not assumed:
 
@@ -41,8 +45,8 @@ OVHcloud/Hetzner paid decision and its $175-before-tax maximum guardrail.
 
 | Gate | Action | Evidence required before approval |
 |---|---|---|
-| 0 | Read official free-trial and provider terms | Dated URLs, eligible SKU/region, quota, expiry, all residual costs |
-| 1 | Create a provider account | User accepts provider, identity/payment requirements, and terms |
+| 1A | Read official offers and manually inspect any already accessible console without creating an account or activating a trial | Dated URLs, eligible SKU/region, quota, expiry, all residual costs |
+| 1B | Create or use a provider account and complete trial-eligibility verification | Explicit user approval of the provider, account use or creation, identity/payment verification, trial activation, and terms |
 | 2 | Provision infrastructure | Exact region, SKU, disk, IP, firewall, hourly estimate, maximum budget |
 | 3 | Install Docker on the VM | Supported Ubuntu release, prerequisite pass, official-repository plan |
 | 4 | Pull/start DataHub v1.6.0 | Resolved configuration, ports, images/digests, rollback, fresh capacity pass |
@@ -54,6 +58,12 @@ OVHcloud/Hetzner paid decision and its $175-before-tax maximum guardrail.
 | 10 | Teardown | Exact resources, backup decision, credential rotation, billing verification |
 
 Approval of one gate does not imply approval of the next.
+
+Gate 1A never authorizes account creation, trial activation, billing-account
+creation, payment acceptance, provider terms acceptance, or resource creation.
+Each of those account or eligibility actions requires explicit Gate 1B
+approval. Gate 1B does not authorize a VM, disk, IP, firewall, or other cloud
+resource; those always require separate Gate 2 approval.
 
 ## Checkpoint sequence
 
