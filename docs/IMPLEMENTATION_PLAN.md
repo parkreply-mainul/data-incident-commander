@@ -27,6 +27,11 @@ exist.
 **Goal:** Validate prerequisites and select compatible, appropriately licensed
 versions without assuming capabilities.
 
+Environment validation precedes installation. The macOS-only `make check`
+command performs read-only discovery and generic candidate-port checks. Its
+results do not establish DataHub compatibility; official requirements and an
+actual successful startup must still be verified.
+
 **Work:**
 
 - verify supported Python, Node.js, DataHub OSS, and MCP Server versions;
@@ -255,6 +260,7 @@ responsibilities are:
 
 | Target | Planned responsibility |
 | --- | --- |
+| `check` | Run the implemented read-only macOS prerequisite validation |
 | `setup` | Prerequisite checks and environment preparation |
 | `start` | Start required services through modular scripts |
 | `seed` | Load and verify the NYC Taxi planted scenario |

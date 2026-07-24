@@ -210,7 +210,21 @@ scripts/submission_check.sh
 scripts/stop_all.sh
 ```
 
-The current Makefile targets are safe placeholders that print messages only.
+All current Makefile targets other than `check` are safe placeholders that
+print messages only.
+
+Environment validation precedes installation. On macOS, run the implemented
+read-only prerequisite check:
+
+```bash
+make check
+```
+
+The check reports host tools and generic candidate-port conflicts without
+installing or starting anything. A passing result does not establish DataHub
+compatibility; official requirements and an actual startup must still be
+verified. See
+[docs/ENVIRONMENT_VALIDATION.md](docs/ENVIRONMENT_VALIDATION.md).
 
 ## Repository structure
 
@@ -268,6 +282,7 @@ dependencies may be used.
 ## Placeholder commands
 
 ```bash
+make check
 make setup
 make start
 make seed

@@ -1,4 +1,7 @@
-.PHONY: setup start seed test smoke demo demo-check submission-check stop
+.PHONY: check setup start seed test smoke demo demo-check submission-check stop
+
+check:
+	@./scripts/check_prerequisites.sh
 
 setup:
 	@echo "Placeholder: setup is not implemented yet."
