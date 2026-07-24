@@ -7,8 +7,10 @@ running DataHub OSS instance through verified DataHub MCP Server operations,
 preserves evidence provenance, makes reproducible calculations, and never
 simulates success. Sprint 5 implements isolated deterministic core tests.
 Sprint 6 adds isolated application, repository, and FastAPI contract tests with
-the live integration deliberately unconfigured. Real DataHub/MCP, UI, and
-end-to-end tests remain future work.
+the live integration deliberately unconfigured. Sprint 7 adds isolated
+frontend client/component/accessibility contract tests and a bounded local
+FastAPI/Vite smoke path. Real DataHub/MCP and full browser E2E tests remain
+future work.
 
 ## Acceptance rules
 
@@ -249,11 +251,12 @@ one header value is emitted, and internal failures remain safely redacted.
 
 ## Frontend component tests
 
-React component tests will cover investigation input, timeline, severity and
-root-cause summary, lineage graph, blast-radius view, Evidence Ledger,
-confidence and known/unknown panel, owners and domains, remediation, approval,
-write/read status, previous memory, recent incidents, and all operational
-states.
+Sprint 7 React tests cover navigation, readiness, investigation input,
+draft listing/detail, audit history, pagination, request IDs, client errors,
+focus and labels, and unavailable future-result surfaces. The detailed matrix
+is in `docs/FRONTEND_TEST_STRATEGY.md`. Functional timeline, severity,
+lineage, blast radius, Evidence Ledger, confidence, ownership, remediation,
+approval, write/read, and memory tests remain gated on real API capabilities.
 
 ## Browser E2E tests
 

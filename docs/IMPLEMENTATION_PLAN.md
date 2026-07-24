@@ -176,6 +176,12 @@ evidence, permission, or dependency gates.
 **Goal:** Deliver a professional React, TypeScript, and Vite desktop
 investigation workspace.
 
+**Sprint 7 status:** The professional shell, readiness dashboard, draft
+creation, investigation list/detail, system status, typed API client,
+responsive design system, and honest failure/disabled states are implemented
+locally. Live result, graph, approval, write-back, and memory controls remain
+blocked until their backend capabilities are real.
+
 **Views and components:**
 
 - investigation input;
@@ -193,14 +199,13 @@ investigation workspace.
 - recent incidents; and
 - empty, loading, partial, error, disconnected, success, and resolved states.
 
-**Work:** Implement accessible keyboard behavior, focus management, readable
-evidence density, responsive desktop layout, graph semantics, consistent
-operational states, and submission-quality visual polish after the real
-backend path works.
+**Work remaining:** Validate visual quality across target desktop widths and
+assistive technologies. Add graph semantics and workflow controls only after
+the corresponding real backend path works.
 
-**Exit criteria:** A responder can conduct and verify the full human-controlled
-workflow without hiding partial evidence or dependency failures. Accessibility
-and professional visual-quality acceptance checks pass.
+**Exit criteria:** The current draft workflow does not hide dependency
+failures. Full phase completion still requires the real investigation and
+human-controlled workflow plus accessibility and visual-quality acceptance.
 
 ## Phase 8: one-command automation
 

@@ -6,10 +6,10 @@ application planned exclusively for the DataHub Agent Hackathon in the
 instance and verified **DataHub MCP Server** operations to investigate real
 metadata at runtime.
 
-> **Status:** Sprint 6 implements the local FastAPI boundary, application
-> services, and in-memory repository around the deterministic core. DataHub and
-> MCP integration, real investigation, React, persistence, and write-back
-> remain unavailable.
+> **Status:** Sprint 7 adds a tested React desktop client for the committed
+> FastAPI boundary. It supports honest readiness, draft creation, listing, and
+> detail views. DataHub/MCP integration, real investigation, durable
+> persistence, and write-back remain unavailable.
 
 ## Current project status
 
@@ -25,6 +25,8 @@ metadata at runtime.
 - Sprint 6: implemented locally for review — strict FastAPI transport models,
   fail-closed investigation orchestration, stable errors, and in-memory
   development persistence.
+- Sprint 7: implemented locally for review — accessible React/TypeScript/Vite
+  desktop UI consuming the current API without fabricating unavailable results.
 
 ## Project vision
 
@@ -163,8 +165,9 @@ boundaries.
 - DataHub MCP Server
 
 The backend requirements pin Pydantic 2.11.10, pytest 8.4.2, FastAPI 0.139.2,
-Uvicorn 0.51.0, and HTTPX 0.28.1. No DataHub SDK, MCP package, LLM SDK,
-database, or frontend dependency is installed.
+Uvicorn 0.51.0, and HTTPX 0.28.1. Frontend direct dependencies are exactly
+pinned in `frontend/package.json` and locked by npm. No DataHub SDK, MCP
+package, LLM SDK, database, UI framework, or graph library is installed.
 
 ## Local API development
 
@@ -194,6 +197,40 @@ Investigation also performs a DRAFT-only preflight before any provider call.
 Stored records use optimistic revisions; conflicting state changes fail
 visibly and require the caller to re-read. Readiness reports the injected
 evidence provider, DataHub, MCP, repository, and disabled write-back separately.
+
+## Local frontend development
+
+Use two terminals after installing the documented Python and Node
+prerequisites:
+
+```bash
+# Terminal 1
+make setup
+make api
+
+# Terminal 2
+make frontend-setup
+make frontend
+```
+
+Open `http://127.0.0.1:5173`; the API remains at
+`http://127.0.0.1:8000`. Vite proxies local API requests to FastAPI. Override
+ports with `API_PORT` and `FRONTEND_PORT`; override the proxy target with
+`VITE_API_PROXY_TARGET`.
+
+```bash
+make test
+make frontend-test
+make frontend-build
+```
+
+The client can create and inspect drafts and display actual readiness. The
+Investigate action currently renders `DEPENDENCY_UNAVAILABLE`, leaves the
+incident in `DRAFT`, and produces no evidence. This is intentional: DataHub and
+MCP are not connected. Future evidence, lineage, severity, ownership,
+remediation, memory, and write-back surfaces are visibly disabled.
+
+No screenshots are committed yet.
 
 ## Professional desktop UI
 

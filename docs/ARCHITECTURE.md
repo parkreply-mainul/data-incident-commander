@@ -4,8 +4,9 @@
 
 Sprint 5 implements the normalized deterministic domain core. Sprint 6 adds
 the FastAPI transport boundary, application service ports, and a one-process
-in-memory repository. DataHub/MCP adapters, durable persistence, write-back,
-and frontend remain planned. No DataHub API name, MCP tool,
+in-memory repository. Sprint 7 adds the React/TypeScript/Vite client for the
+current honest API boundary. DataHub/MCP adapters, durable persistence,
+write-back, and live investigation views remain planned. No DataHub API name, MCP tool,
 mutation capability, asset name, metadata field, or dataset graph shape is
 confirmed here. DataHub behavior must be verified against official
 documentation and the actual running DataHub OSS and MCP tool inventory before
@@ -273,7 +274,9 @@ failure state.
 ## Frontend architecture
 
 The React, TypeScript, and Vite frontend is a professional desktop-oriented
-investigation workspace. Planned views and components are:
+investigation workspace. Sprint 7 implements the application shell, dashboard,
+draft form, deterministic list, draft detail, readiness view, typed fetch
+client, and explicit unavailable states. Future-capability panels cover:
 
 - investigation input;
 - live investigation timeline;
@@ -290,16 +293,16 @@ investigation workspace. Planned views and components are:
 - recent incidents; and
 - empty, loading, partial, error, disconnected, success, and resolved states.
 
-The frontend consumes typed backend contracts. It does not call DataHub
+The frontend consumes manually mirrored typed backend contracts. It does not call DataHub
 directly and does not infer success from client state. Lineage visualization
 must identify direction, selected asset, affected assets, evidence gaps,
 truncation, and unavailable details. Approval controls must show the payload and
 disable approval when required evidence or write capability is unavailable.
 
-Real functionality comes before visual polish. A dedicated professional UI
-phase remains required, including responsive desktop layout, accessible
-interaction, readable evidence density, consistent operational states, and
-submission-quality visual design.
+The implemented UI uses responsive desktop layout, accessible interaction,
+readable evidence density, and consistent operational states. Functional graph,
+approval, write-back, and memory controls remain gated on their real backend
+capabilities. See `docs/FRONTEND_ARCHITECTURE.md`.
 
 ## End-to-end investigation flow
 
