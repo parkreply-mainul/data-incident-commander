@@ -32,6 +32,13 @@ Documentation facts are not runtime observations.
 - No mutation is enabled.
 - No credentials, certificates, DNS records, or tokens exist in the repository.
 
+Sprint 8B audited the official starter and did not change this NO-GO. The
+starter uses Agent Context Kit directly rather than standalone MCP. The
+selected primary remains the existing standalone-MCP path; Agent Context Kit is
+only a conditional, separately approved write-back fallback. See
+[RUNTIME_ARCHITECTURE_DECISION.md](RUNTIME_ARCHITECTURE_DECISION.md) and
+[SPRINT_8C_LIVE_RUNTIME_PLAN.md](SPRINT_8C_LIVE_RUNTIME_PLAN.md).
+
 The provisional primary remains OVHcloud B3-16 in Gravelines: 4 vCore, 16 GB
 RAM, and 100 GB NVMe, subject to current availability and quote. The funded
 minimum remains $130 before tax and the maximum guardrail remains $175 before

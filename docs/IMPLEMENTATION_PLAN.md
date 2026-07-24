@@ -90,6 +90,15 @@ documented-versus-observed capability inventory, a library-neutral client
 protocol, a fail-closed provider, and verified-DTO normalization contracts are
 implemented. The live inventory and every exit criterion above remain pending.
 
+**Sprint 8B audit decision:** The official starter uses Agent Context Kit
+directly through `DataHubClient` and LangChain tools; it does not consume a
+standalone MCP server. The primary runtime path remains standalone MCP because
+that matches the project's acceptance contract and implemented adapter
+boundary. Agent Context Kit is a conditional write-back fallback only if a
+verified MCP mutation is unsuitable; it is not authorized or installed. See
+[RUNTIME_ARCHITECTURE_DECISION.md](RUNTIME_ARCHITECTURE_DECISION.md) and the
+approval-gated [Sprint 8C plan](SPRINT_8C_LIVE_RUNTIME_PLAN.md).
+
 ## Phase 4: typed contracts and investigation engine
 
 **Goal:** Implement the read-only, evidence-grounded investigation core.
