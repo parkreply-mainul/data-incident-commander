@@ -1,6 +1,8 @@
-.PHONY: check setup start seed test smoke demo demo-check submission-check stop
+.PHONY: check setup start seed test api smoke demo demo-check submission-check stop
 
 VENV_DIR ?= .venv
+API_HOST ?= 127.0.0.1
+API_PORT ?= 8000
 
 check:
 	@./scripts/check_prerequisites.sh
@@ -37,7 +39,12 @@ seed:
 	@echo "Placeholder: seed is not implemented yet."
 
 test: setup
-	@PYTHONPATH=src "$(VENV_DIR)/bin/python" -m pytest tests/unit
+	@PYTHONPATH=src "$(VENV_DIR)/bin/python" -m pytest
+
+api: setup
+	@PYTHONPATH=src DIC_HOST="$(API_HOST)" DIC_PORT="$(API_PORT)" \
+		"$(VENV_DIR)/bin/python" -m uvicorn data_incident_commander.api.app:app \
+		--host "$(API_HOST)" --port "$(API_PORT)"
 
 smoke:
 	@echo "Placeholder: smoke is not implemented yet."

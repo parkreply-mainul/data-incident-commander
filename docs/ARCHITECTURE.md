@@ -2,8 +2,10 @@
 
 ## Status and verification boundary
 
-Sprint 5 implements only the normalized deterministic domain core. The
-application and integrations remain planned. No DataHub API name, MCP tool,
+Sprint 5 implements the normalized deterministic domain core. Sprint 6 adds
+the FastAPI transport boundary, application service ports, and a one-process
+in-memory repository. DataHub/MCP adapters, durable persistence, write-back,
+and frontend remain planned. No DataHub API name, MCP tool,
 mutation capability, asset name, metadata field, or dataset graph shape is
 confirmed here. DataHub behavior must be verified against official
 documentation and the actual running DataHub OSS and MCP tool inventory before
@@ -125,14 +127,19 @@ all translation from actual external payloads. See
 
 ### FastAPI application boundary
 
-The backend will expose typed HTTP endpoints for investigation lifecycle,
-status streaming or polling, approval, persistence status, read-back
-verification, recent incidents, and incident memory. Exact endpoint paths are
-deferred until API contract design.
+Sprint 6 exposes typed local HTTP endpoints for application health, explicit
+readiness, draft creation/retrieval/listing, investigation orchestration, and
+guarded workflow transitions. Transport contracts are separate from domain
+models. The application service depends on repository, evidence-provider, ID,
+and clock protocols rather than FastAPI or concrete integrations.
 
-Pydantic models will validate request, response, event, evidence, approval, and
-error contracts. The API must surface disconnected, partial, and failed states
-rather than returning synthetic success.
+The default evidence provider is unconfigured and returns dependency
+unavailable without changing the draft. Durable persistence, streaming,
+read-back, recent incidents, and incident-memory endpoints remain planned.
+The service performs a DRAFT-only state preflight before provider invocation.
+In-memory persistence uses lock-protected optimistic revisions so concurrent
+state changes cannot overwrite audit history. Injected providers describe
+DataHub, MCP, and write-back capabilities without readiness network calls.
 
 ### Incident intake and asset resolver
 

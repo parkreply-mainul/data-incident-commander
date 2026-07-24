@@ -152,6 +152,11 @@ duplicate incident memory.
 
 **Goal:** Expose investigation capabilities through a typed application API.
 
+**Sprint 6 status:** Local application boundary implemented. Health/readiness,
+draft CRUD/listing, guarded workflow endpoints, stable errors, injectable
+providers, and in-memory persistence are present. Real evidence integration,
+authentication, durable storage, and production deployment remain future work.
+
 **Work:**
 
 - create FastAPI lifecycle, health, investigation, timeline, approval,

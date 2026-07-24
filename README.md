@@ -6,9 +6,10 @@ application planned exclusively for the DataHub Agent Hackathon in the
 instance and verified **DataHub MCP Server** operations to investigate real
 metadata at runtime.
 
-> **Status:** Sprint 5 implements the framework-independent deterministic
-> investigation core and unit tests. DataHub, MCP integration, FastAPI, React,
-> write-back, and the live application remain unimplemented.
+> **Status:** Sprint 6 implements the local FastAPI boundary, application
+> services, and in-memory repository around the deterministic core. DataHub and
+> MCP integration, real investigation, React, persistence, and write-back
+> remain unavailable.
 
 ## Current project status
 
@@ -21,6 +22,9 @@ metadata at runtime.
 - Sprint 5: implemented locally for review — strict normalized contracts,
   deterministic lineage/blast-radius, severity, confidence, approval-state,
   remediation, and incident-memory logic with synthetic unit tests.
+- Sprint 6: implemented locally for review — strict FastAPI transport models,
+  fail-closed investigation orchestration, stable errors, and in-memory
+  development persistence.
 
 ## Project vision
 
@@ -158,9 +162,38 @@ boundaries.
 - DataHub OSS
 - DataHub MCP Server
 
-Sprint 5 pins Pydantic 2.11.10 and pytest 8.4.2 for the deterministic core in
-`requirements-backend.txt`. Application and integration dependency selection
-remains future work.
+The backend requirements pin Pydantic 2.11.10, pytest 8.4.2, FastAPI 0.139.2,
+Uvicorn 0.51.0, and HTTPX 0.28.1. No DataHub SDK, MCP package, LLM SDK,
+database, or frontend dependency is installed.
+
+## Local API development
+
+```bash
+make setup
+make test
+make api
+```
+
+`make setup` creates or reuses the repository-local `.venv`. `make api` starts
+a development server at `http://127.0.0.1:8000` by default; override the port
+with `make api API_PORT=8080`. It does not enable reload and is not a production
+deployment command.
+
+```bash
+curl http://127.0.0.1:8000/health
+
+curl -X POST http://127.0.0.1:8000/api/v1/investigations \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Investigate an asset","target_asset_id":"asset:unverified"}'
+```
+
+Draft creation is functional, but DataHub/MCP integration is not yet
+available. Calling the investigation endpoint returns a visible dependency
+error and does not invent evidence or mark the draft investigated.
+Investigation also performs a DRAFT-only preflight before any provider call.
+Stored records use optimistic revisions; conflicting state changes fail
+visibly and require the caller to re-read. Readiness reports the injected
+evidence provider, DataHub, MCP, repository, and disabled write-back separately.
 
 ## Professional desktop UI
 

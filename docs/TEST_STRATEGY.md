@@ -5,8 +5,10 @@
 Tests must prove that DataIncident Commander performs useful work against a
 running DataHub OSS instance through verified DataHub MCP Server operations,
 preserves evidence provenance, makes reproducible calculations, and never
-simulates success. Sprint 5 implements only isolated deterministic core tests;
-real DataHub/MCP, API, UI, and end-to-end tests remain future work.
+simulates success. Sprint 5 implements isolated deterministic core tests.
+Sprint 6 adds isolated application, repository, and FastAPI contract tests with
+the live integration deliberately unconfigured. Real DataHub/MCP, UI, and
+end-to-end tests remain future work.
 
 ## Acceptance rules
 
@@ -61,11 +63,12 @@ policies remain pending.
 
 ## API contract tests
 
-FastAPI/Pydantic contract tests will cover valid and invalid requests,
+Sprint 6 FastAPI/Pydantic contract tests cover valid and invalid requests,
 structured investigation results, timeline events, approval transitions,
 persistence and read-back status, recent incidents, memory results, pagination
-where required, version compatibility, and typed error responses. Exact
-endpoint paths will be defined during API design.
+where currently implemented, application/readiness status, deterministic
+serialization, and typed error responses. Persistence/read-back, recent
+incidents, and memory API coverage remain future work.
 
 ## Real DataHub integration tests
 
@@ -216,10 +219,33 @@ instruction.
 
 ## Backend API tests
 
-Backend tests will cover lifecycle health, dependency status, investigation
+Sprint 6 backend tests cover lifecycle health, dependency status, investigation
 creation, timeline progression, partial results, approval authorization,
 concurrent or repeated requests, persistence status, read-back verification,
 recent incidents, memory retrieval, redaction, and error handling.
+
+Current implemented coverage includes application-only health, explicit
+unavailable dependencies, draft creation/retrieval/listing, fail-closed
+investigation, transition enforcement, stable safe errors, deterministic
+injected IDs/time, repository locking, app import, and OpenAPI generation.
+Concurrency tests synchronize competing approvals and prove only one revision
+and audit transition persists. Provider preflight tests prove invalid states
+perform no external call or save. Readiness tests cover default, configured,
+unavailable, DataHub-only, and MCP-backed capability descriptions without
+network activity. Atomic pagination tests pause a lock-held snapshot while a
+concurrent create waits, proving page items and total describe the same record
+set without timing-based assertions.
+
+Provider-output tests use complete schema-valid reports and independently vary
+incident ID, target identifier, status, and protected title. They verify that
+mismatches occur before transition/save, preserve the original revision and
+empty audit/report state, emit a safe stable API error, and never echo provider
+payload content. A matching report proves the valid investigated transition.
+
+Correlation tests cover successful, validation, known application, not-found,
+and unexpected-error responses. They verify caller IDs are preserved, absent
+IDs are generated exactly once, the body and `X-Request-ID` header match, only
+one header value is emitted, and internal failures remain safely redacted.
 
 ## Frontend component tests
 
