@@ -2,6 +2,16 @@
 
 ## Safety boundary
 
+**Status: Gate 1A and Gate 1B completed on 2026-07-24.** The user manually
+confirmed an active Google Cloud Free Trial, €256.52 remaining credit, an
+unaccepted paid-conversion **Activate** control, Compute Engine API enabled,
+the `e2-standard-4` and Ubuntu 24.04 LTS options, and 100 GB Balanced
+Persistent Disk. No VM or infrastructure was created or started, and no
+billing change was accepted.
+
+This checklist is retained as the audit procedure. It does not authorize Gate
+2 resource creation.
+
 This checklist supports **Gate 1A**, the read-only public-offer research and
 manual inspection of an already accessible console. Gate 1A does not authorize
 account creation, trial activation, terms acceptance, payment entry or

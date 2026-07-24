@@ -1,4 +1,4 @@
-# Sprint 8C Gate 1A Research Decision
+# Sprint 8C Gate 1 Closure
 
 ## Gate definitions
 
@@ -14,8 +14,29 @@
 
 ## Decision
 
-**Gate 1A outcome: complete. Current outcome: NO-GO for Gate 1B and
-infrastructure creation.**
+**Gate 1A and Gate 1B are complete. Gate 2 remains unapproved and no cloud
+resource may be created.**
+
+The user manually verified the following Google Cloud account state on
+2026-07-24:
+
+- Free Trial is active;
+- €256.52 of trial credit remains;
+- the **Activate** control for paid conversion remains present;
+- Compute Engine API is enabled;
+- a project with the display name `DataIncidentCommander` exists;
+- `e2-standard-4` is available with 4 vCPU and 16 GB RAM;
+- Ubuntu 24.04 LTS is available;
+- 100 GB Balanced Persistent Disk is available;
+- the observed estimate remains within the trial credit;
+- no VM or infrastructure resource was created;
+- no resource was started; and
+- no billing change or paid conversion was accepted.
+
+This record contains no project ID, billing-account ID, credential, payment
+detail, or identity detail. The project display name is not an authorization
+target; the exact project identity must be confirmed outside Git immediately
+before any later approved action.
 
 The recommended free-credit order is:
 
@@ -28,29 +49,29 @@ AWS Free Plan is not selected because its published eligible x86
 general-purpose maximum is `m7i-flex.large` at 2 vCPU/8 GiB, which meets only
 the absolute floor and lacks the margin expected for reliable judging.
 
-No account-specific eligibility, active credit, quota, regional capacity, or
-pre-creation quote was observed. Research alone cannot satisfy this gate.
+Gate 1B establishes free-credit eligibility and identifies a technically
+suitable candidate. It does not establish the exact Gate 2 region, zone,
+quota, public-access design, firewall rules, resource names, or itemized
+pre-creation quote.
 
 ## Why Google Cloud is primary
 
-- $300 is larger than the approximately $145–$147 public 30-day estimate for
-  `n2-standard-4`, 50–100 GiB standard disk, and one IPv4.
-- Ninety days comfortably spans development, submission, and the August
-  judging period if activated at the approved time.
-- The official trial does not automatically charge. Paid billing requires a
-  manual activation.
-- Ubuntu 24.04 LTS x86 and the preferred 4-vCPU/16-GiB machine type are
-  officially documented.
+- the account has an active Free Trial with €256.52 remaining;
+- paid conversion remains unaccepted;
+- the account exposes the preferred 4-vCPU/16-GB `e2-standard-4` shape;
+- Ubuntu 24.04 LTS and 100 GB Balanced Persistent Disk are available; and
+- the observed estimate remains within trial credit.
 
-Risks:
+Remaining Gate 2 uncertainties:
 
-- the user might be ineligible due to prior Google paid use or a prior trial;
-- a payment method and identity verification are required;
-- Free Trial quota cannot be increased;
-- N2, disk, IP quota and zonal capacity are account-specific; and
-- regional pricing, egress, tax, and the final billing estimate remain unknown.
+- exact project ID confirmation outside Git;
+- region, zone, quota, and zonal capacity;
+- external-IP or alternative access path;
+- firewall and SSH source boundary;
+- itemized regional pricing, egress, logging, and tax; and
+- credit expiration, budget threshold, and teardown date.
 
-Classification: **POSSIBLY FEASIBLE / ACCOUNT VERIFICATION REQUIRED**.
+Classification: **FEASIBLE FOR GATE 2 PLANNING; RESOURCE CREATION UNAPPROVED**.
 
 ## Why OVHcloud is fallback
 
@@ -85,61 +106,52 @@ paid option in Gravelines, subject to:
 
 This checkpoint does not authorize the paid route.
 
-## Strict GO criteria
+## Gate 1 closure criteria
 
-Gate 1B verification may produce a **GO for a Gate 2 resource-creation approval
-request**, not for creation itself, only when all are evidenced:
+Gate 1B produces a **GO to prepare and request Gate 2 approval**, not a GO to
+create resources. The following are confirmed:
 
 - promotional credit is active or contractually guaranteed for this account;
-- the candidate VM and Ubuntu 24.04 x86 image are available;
-- CPU, disk, instance, and IPv4 quotas are sufficient;
-- the complete estimate, including disk, IPv4, expected network, and tax,
-  remains within credit with a safe margin;
-- the credit lasts through the planned runtime and judging window;
+- a 4-vCPU/16-GB candidate VM and Ubuntu 24.04 image are available;
+- 100 GB Balanced Persistent Disk is available;
+- the observed estimate remains within the available credit;
 - no automatic paid conversion has been accepted unintentionally;
-- deletion, retained-resource billing, budget alerts, and credit-expiry
-  behavior are understood;
-- public judging access can be provided safely; and
-- the user separately and explicitly approves exact resource creation.
+- no infrastructure exists; and
+- exact resource creation still requires separate user approval.
 
-## Strict NO-GO criteria
+## Gate 2 blockers
 
-Remain or return **NO-GO** if:
+Remain **NO-GO for resource creation** until the Gate 2 approval request names
+and verifies:
 
-- the account is ineligible or the credit is absent;
-- preferred size or Ubuntu/x86 is excluded;
-- quota/capacity cannot support the preferred VM;
-- using only the technical floor would threaten judging reliability;
-- billing, tax, traffic, IPv4, disk, or expiration is unclear;
-- an unacceptable deposit or paid-plan conversion is required;
-- automatic billing risk is not explicitly accepted;
-- public judging access is unavailable;
-- the conservative estimate can exceed the credit; or
-- account verification cannot be completed without sharing sensitive data.
+- exact project identity outside Git;
+- region and zone;
+- regional CPU, instance, disk, and external-IP quota;
+- exact `e2-standard-4` configuration and Ubuntu image;
+- 100 GB Balanced Persistent Disk lifecycle behavior;
+- public-IP or alternative access design;
+- default-deny firewall and SSH source restriction;
+- resource naming and labels;
+- itemized compute, disk, IPv4, network, snapshot, logging, and tax estimate;
+- trial expiration, budget threshold, and teardown date;
+- rollback targets; and
+- the user's explicit approval of that exact resource set.
 
 ## Next user action
 
-Under Gate 1A, follow
-[CLOUD_ACCOUNT_VERIFICATION_CHECKLIST.md](CLOUD_ACCOUNT_VERIFICATION_CHECKLIST.md)
-for Google Cloud only as far as public research or an already accessible
-console permits. Stop before account creation, payment or identity
-verification, terms acceptance, or trial activation. Return only the redacted
-status fields requested by the checklist.
-
-If Google is ineligible or cannot show sufficient quota, perform the OVHcloud
-fallback inspection, again stopping before account/project creation or trial
-activation. Request explicit Gate 1B approval if eligibility cannot be
-confirmed without those actions.
+Review
+[SPRINT_8C_GATE_2_IMPLEMENTATION_PLAN.md](SPRINT_8C_GATE_2_IMPLEMENTATION_PLAN.md)
+and supply the still-missing, non-secret region, zone, quota, access, cost, and
+teardown fields. A later message must explicitly approve the exact Gate 2
+resource set before creation.
 
 ## External-action status
 
-- Gate 1A research and already accessible read-only inspection: authorized
-- Gate 1B account use/creation and eligibility actions: not authorized
-- Account creation: not authorized without Gate 1B
-- Trial activation: not authorized without Gate 1B
-- Billing account/project creation: not authorized without Gate 1B
-- Payment or identity submission: not authorized without Gate 1B
-- VM/network/IP creation: not authorized
+- Gate 1A public research: complete
+- Gate 1B account and trial-eligibility verification: complete
+- Google Cloud Free Trial: active
+- Paid conversion: not accepted
+- VM/network/IP/firewall creation: not authorized without Gate 2
 - Cloud CLI login/configuration: not authorized
 - Docker/DataHub/MCP installation or startup: not authorized
 - Mutation: not authorized

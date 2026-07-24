@@ -23,7 +23,7 @@ tax, and promotional-credit coverage remain mandatory gates.
 
 | Order | Provider | Free offer | Preferred VM | Billing behavior | Gate 1A decision |
 |---|---|---|---|---|---|
-| 1 | Google Cloud Free Trial — primary free route | $300, 90 days | `n2-standard-4`: 4 vCPU, 16 GiB plus 50–100 GB disk | Payment verification required; no charges unless manually upgraded to paid billing | **POSSIBLY FEASIBLE — Gate 1B verification required** |
+| 1 | Google Cloud Free Trial — selected free route | €256.52 remaining, manually observed 2026-07-24 | Account-observed `e2-standard-4`: 4 vCPU, 16 GB plus 100 GB Balanced Persistent Disk | Free Trial active; paid **Activate** control still present | **FEASIBLE FOR GATE 2 PLANNING; CREATION UNAPPROVED** |
 | 2 | OVHcloud Public Cloud trial — free fallback | €200 in France / US$200 worldwide, one month | Public `b3-16`: 4 vCore, 16 GB, 100 GB NVMe | Valid payment method required; automatic billing after credit exhaustion | **ACCOUNT VERIFICATION REQUIRED** |
 | 3 | OVHcloud `b3-16` — paid last resort | No free-credit assumption | Public `b3-16`: 4 vCore, 16 GB, 100 GB NVMe | Paid usage subject to a fresh quote, explicit approval, and the $175-before-tax guardrail | **NOT AUTHORIZED** |
 | 4 | AWS — not recommended | $100 immediately and up to $100 earned, Free Plan up to six months | Free Plan limits published eligible types to at most `m7i-flex.large`, 2 vCPU/8 GiB | Payment method required; Free Plan does not charge unless upgraded or a paid-only service is activated | **NOT FEASIBLE at preferred size** |
@@ -31,7 +31,20 @@ tax, and promotional-credit coverage remain mandatory gates.
 No additional provider was evaluated because Google Cloud and OVHcloud both
 have official offers that can potentially fund the preferred target.
 
-## 1. Google Cloud Free Trial — primary free route
+## Gate 1B account verification result
+
+The user manually verified an active Google Cloud Free Trial with €256.52
+remaining, an unaccepted paid-conversion **Activate** control, Compute Engine
+API enabled, `e2-standard-4`, Ubuntu 24.04 LTS, and 100 GB Balanced Persistent
+Disk available. The observed estimate remains within the credit. A project
+with display name `DataIncidentCommander` exists, but no project ID or billing
+identifier is recorded here.
+
+No VM, network, firewall, external IP, disk, or other infrastructure resource
+was created or started, and no billing change was accepted. Gate 1 is closed;
+Gate 2 remains separately approval-gated.
+
+## 1. Google Cloud Free Trial — selected free route
 
 ### Confirmed from official sources
 
@@ -60,7 +73,7 @@ have official offers that can potentially fund the preferred target.
   US pricing. An in-use standard VM external IPv4 is $0.005/hour. Regional
   pricing and currency can differ.
 
-### Candidate and estimate
+### Public research candidate and estimate
 
 Candidate: `n2-standard-4`, Ubuntu 24.04 LTS x86, `us-central1`, one ephemeral
 external IPv4, and 50–100 GiB standard Persistent Disk. The region is a pricing
@@ -84,6 +97,12 @@ Outbound traffic, snapshots, logs, DNS, tax, and regional price differences are
 excluded. Even the 100 GiB estimate leaves approximately $152.55 of the $300
 credit, but only the account's billing estimate can confirm coverage.
 
+The later account inspection selected the available `e2-standard-4` candidate
+instead of this public `n2-standard-4` research reference. The exact
+account-console estimate was reported as within the remaining credit but was
+not copied into the repository. Gate 2 must capture and approve an itemized,
+current estimate before resource creation.
+
 ### Account-specific unknowns
 
 - whether the user is eligible or has prior paid/trial history;
@@ -97,11 +116,11 @@ credit, but only the account's billing estimate can confirm coverage.
 
 ### Feasibility
 
-**POSSIBLY FEASIBLE** and the recommended free route. It funds the preferred
-shape for 30 days in the public estimate, covers the judging window if
-activated at the appropriate time, and does not automatically convert to paid
-billing. It remains **NO-GO** until eligibility, active credit, quota, capacity,
-and the non-paid billing state are observed manually.
+**FEASIBLE FOR GATE 2 PLANNING.** Account inspection confirmed active credit,
+the required compute and disk shape, Ubuntu 24.04 LTS, and an unaccepted paid
+conversion. Resource creation remains **NO-GO** until the exact Gate 2
+configuration and remaining quota, network, cost, and teardown fields are
+approved.
 
 ## 2. OVHcloud Public Cloud trial — free fallback
 

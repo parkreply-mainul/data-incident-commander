@@ -14,11 +14,12 @@ verifies them.
 
 ## 1. Approval and provider selection
 
-**Status: Blocked.**
+**Status: Gate 1 complete; Gate 2 blocked pending exact approval.**
 
-- follow the Sprint 8C order: Google Cloud Free Trial as the primary free
-  route, OVHcloud Public Cloud trial as the free fallback, and paid OVHcloud
-  B3-16 in Gravelines only as the last resort;
+- use the manually verified Google Cloud Free Trial and available
+  `e2-standard-4` as the Gate 2 planning target;
+- retain OVHcloud Public Cloud trial as the free fallback and paid OVHcloud
+  B3-16 only as the last resort;
 - treat AWS as not recommended for the preferred runtime;
 - obtain explicit account, payment, provisioning, and budget approval;
 - recheck hackathon rules, provider price, region capacity, and account limits;
@@ -27,11 +28,10 @@ verifies them.
 - record every billable resource and deletion owner; and
 - define judging and teardown dates.
 
-No provider command is documented yet. Gate 1A research authorizes none of
-these actions. Account use or creation and trial-eligibility actions require
-Gate 1B approval; infrastructure always requires separate Gate 2 approval.
-The planning selections are not verified account/region resource identifiers,
-and no credential path or all-in quote has been approved.
+No provider command is authorized. Gate 1A and Gate 1B are complete.
+Infrastructure always requires separate Gate 2 approval. The region, zone,
+quota, resource names, network boundary, exact project identity, and itemized
+estimate are not yet approved, and no credential path is documented.
 
 ## 2. Network boundary before compute
 

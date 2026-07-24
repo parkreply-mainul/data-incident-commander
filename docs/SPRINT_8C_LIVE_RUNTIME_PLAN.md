@@ -2,11 +2,14 @@
 
 ## Purpose and current state
 
-Sprint 8C will establish the first real DataHub-backed vertical slice. It is
-not authorized by this document. As of 2026-07-24:
+Sprint 8C will establish the first real DataHub-backed vertical slice. Gate 1
+is complete, but Gate 2 and every later external action remain unapproved. As
+of 2026-07-24:
 
-- no provider account or VM has been created;
-- no payment or trial has been accepted;
+- Google Cloud Free Trial is active with €256.52 remaining;
+- a project with display name `DataIncidentCommander` exists;
+- paid conversion has not been accepted;
+- no VM or infrastructure resource has been created or started;
 - no remote Docker installation has occurred;
 - DataHub has not been started;
 - MCP and Agent Context Kit have not been installed;
@@ -18,13 +21,12 @@ state, incurs cost, handles a credential, or enables mutation.
 
 ## Runtime target
 
-Primary topology remains a remote single VM with Ubuntu LTS, at least 4 vCPU,
-16 GB RAM, and 50 GB available SSD. Gate 1A research selects Google Cloud's
-Free Trial as the first account-verification route, OVHcloud's Public Cloud
-trial as the free fallback, and the previously reviewed OVHcloud B3-16 in
-Gravelines as the paid last resort. AWS is not recommended for the preferred
-runtime. These are gated candidates, not provisioned resources or a claimed
-formal production minimum. See
+Primary topology remains a remote single VM. Gate 1B selected the available
+Google Cloud `e2-standard-4` candidate with Ubuntu 24.04 LTS and 100 GB
+Balanced Persistent Disk. OVHcloud's Public Cloud trial remains the free
+fallback, and paid OVHcloud B3-16 remains the last resort. AWS is not
+recommended for the preferred runtime. No candidate is provisioned, and this
+is not a claimed formal production minimum. See
 [SPRINT_8C_GATE_1_DECISION.md](SPRINT_8C_GATE_1_DECISION.md).
 
 The free route is investigated first, but not assumed:
@@ -67,18 +69,20 @@ resource; those always require separate Gate 2 approval.
 
 ## Checkpoint sequence
 
-### 1. Free-account and cost verification
+### 1. Free-account and cost verification — complete
 
 - Recheck provider offers from official sources on the execution date.
 - Prefer credits that cover the required VM without a weaker SKU.
 - Record tax, IPv4, storage, snapshot, egress, and powered-off billing.
 - Do not request credentials or payment data in the repository.
 
-**Exit:** either a viable zero-net-cost route is documented or the paid
-fallback is explicitly selected. No infrastructure exists yet.
+**Exit achieved:** Google Cloud Free Trial and a suitable candidate are
+verified. No infrastructure exists. See the Gate 1 closure record.
 
 ### 2. Infrastructure creation
 
+- Follow
+  [SPRINT_8C_GATE_2_IMPLEMENTATION_PLAN.md](SPRINT_8C_GATE_2_IMPLEMENTATION_PLAN.md).
 - Provision only the approved Ubuntu LTS VM, disk, IPv4, SSH key, and
   default-deny cloud firewall.
 - Record provider resource identifiers outside Git.
