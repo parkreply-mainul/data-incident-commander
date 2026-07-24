@@ -15,15 +15,18 @@ verifies them.
 
 **Status: Blocked.**
 
-- obtain explicit provisioning and budget approval;
+- treat OVHcloud B3-16 in Gravelines as the provisional primary and Hetzner
+  CCX23 in Nuremberg as the backup;
+- obtain explicit account, payment, provisioning, and budget approval;
 - recheck hackathon rules, provider price, region capacity, and account limits;
 - select Linux architecture and a supported distribution;
 - select at least 4 vCPU, 16 GB RAM, and 50 GB SSD;
 - record every billable resource and deletion owner; and
 - define judging and teardown dates.
 
-No provider command is documented yet because no account, region, size slug, or
-credential path has been selected and verified.
+No provider command is documented yet. The planning selections are not verified
+account/region resource identifiers, and no credential path or all-in quote has
+been approved.
 
 ## 2. Network boundary before compute
 
@@ -206,6 +209,10 @@ separate approved exercise, and never commit them.
 - maintain a tested recovery path; and
 - retain until the winner-announcement buffer date approved in the lifecycle
   plan.
+
+The current planning window is 2026-08-07 through 2026-09-09. See
+[JUDGING_AVAILABILITY_PLAN.md](JUDGING_AVAILABILITY_PLAN.md). Whether judges may
+receive test credentials still requires organizer clarification.
 
 ## 16. Cleanup and rollback
 

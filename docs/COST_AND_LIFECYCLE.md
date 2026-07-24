@@ -6,15 +6,18 @@ This is a planning estimate, not a purchase authorization or provider
 commitment. Prices and limits were accessed on **2026-07-24** and may change by
 region, tax status, account, currency, capacity, or provider policy.
 
-Primary price reference:
-[DigitalOcean Droplet pricing](https://www.digitalocean.com/pricing/droplets).
+Sprint 4D supersedes the earlier DigitalOcean reference with the selected
+OVHcloud plan and lifecycle estimates in
+[INFRASTRUCTURE_DECISION.md](INFRASTRUCTURE_DECISION.md) and
+[BUDGET_OPTIMIZATION.md](BUDGET_OPTIMIZATION.md). The DigitalOcean figures
+below remain historical Sprint 4C comparison evidence.
 
 Billing and storage references:
 
 - [Droplet billing](https://docs.digitalocean.com/products/droplets/details/pricing/)
 - [Snapshot pricing](https://docs.digitalocean.com/products/snapshots/details/)
 
-## Reference runtime
+## Historical Sprint 4C reference runtime
 
 A DigitalOcean General Purpose Droplet matching the project planning baseline
 was listed at:
@@ -45,7 +48,7 @@ DataHub.
 These dates come from the hackathon rules; actual provisioning dates and judge
 access expectations remain assumptions.
 
-## Estimated cost
+## Superseded Sprint 4C estimate
 
 At $0.1875/hour:
 
@@ -63,9 +66,10 @@ estimate near **$211.50** before provider monthly caps. A conservative
 continuous-retention planning range is therefore **$190–$215**, plus ancillary
 charges.
 
-The project maximum budget guardrail is **$250 total** through teardown. This
-is a proposed guardrail, not approval to spend. Stop and request direction if
-forecasted cost could exceed it.
+Sprint 4D recommends a funded minimum of **$130 before tax** and a maximum
+guardrail of **$175 before tax** through teardown for the selected OVHcloud
+Model C lifecycle. Neither amount authorizes spending. The earlier $250
+guardrail is retained here only as historical context.
 
 ## Storage and network considerations
 
@@ -144,3 +148,10 @@ resources after judging to stop charges.**
 - Public IPv4, firewall, backup, and snapshot behavior must be rechecked for
   the selected provider and region.
 - Hackathon judge traffic and retention requirements are not precisely stated.
+
+## Current decision
+
+The selected cost baseline is OVHcloud B3-16 at an observed $0.1208/hour, using
+a short development VM followed by a separately created clean final judging
+VM. Estimated total is $115–$130 before tax; promotional credit is excluded.
+No provider account, infrastructure, or spend has been authorized.

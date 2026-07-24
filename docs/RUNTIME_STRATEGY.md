@@ -8,6 +8,11 @@ DataHub OSS `v1.6.0`, DataHub MCP Server, FastAPI backend, and React frontend.
 **Backup strategy:** hybrid development mode with DataHub OSS and MCP on the
 remote VM while the backend and frontend run locally.
 
+**Provider decision:** Sprint 4D selects OVHcloud B3-16 in Gravelines as the
+provisional primary and Hetzner CCX23 in Nuremberg as provider backup. Region,
+capacity, all-in quote, tax, and account approval remain go/no-go gates. See
+[INFRASTRUCTURE_DECISION.md](INFRASTRUCTURE_DECISION.md).
+
 Neither strategy is provisioned or authorized for execution. The primary
 strategy is selected because it is the smallest topology that satisfies the
 DataHub OSS requirement while giving judges one stable public application URL
@@ -158,4 +163,5 @@ home-network outages add failure modes.
 - captured baseline billing/resource identifiers; and
 - separate explicit startup authorization.
 
-Until then, the decision is **NO-GO for provisioning and startup**.
+Until then, the decision is **NO-GO for provisioning and startup**. Sprint 4D
+research did not create an account, authorize payment, or provision anything.
