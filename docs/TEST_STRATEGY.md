@@ -5,8 +5,8 @@
 Tests must prove that DataIncident Commander performs useful work against a
 running DataHub OSS instance through verified DataHub MCP Server operations,
 preserves evidence provenance, makes reproducible calculations, and never
-simulates success. No tests or application functionality are implemented in
-Sprint 1B.
+simulates success. Sprint 5 implements only isolated deterministic core tests;
+real DataHub/MCP, API, UI, and end-to-end tests remain future work.
 
 ## Acceptance rules
 
@@ -45,6 +45,19 @@ normalization, known/derived/hypothesis/unknown classification, cycle
 detection, traversal limits, freshness calculations, blast-radius
 calculations, severity factors, confidence coverage, stable persistence keys,
 payload normalization, equivalence comparison, and redaction.
+
+Sprint 5 currently covers strict contract validation, UTC timestamps, stable
+serialization, evidence-ledger uniqueness, confirmed evidence requirements,
+cycle/depth/node-safe lineage and paths, direct/transitive blast radius,
+severity rubric boundaries and explanations, confidence penalties and
+severity independence, remediation approval classification, immutable approval
+transitions and retry, and deterministic identifier-based memory matching.
+It also covers canonical evidence payload acceptance/rejection, deep
+immutability of traversal mappings, and stable JSON serialization. The
+repository-local Makefile bootstrap is validated against a temporary absent
+virtual environment and by an idempotent second setup run.
+Candidate ranking, adapters, idempotency, payload comparison, and timeout
+policies remain pending.
 
 ## API contract tests
 
@@ -167,6 +180,18 @@ Mutation must be rejected before approval, after approval revocation, or after
 any material change to the approved payload. UI tests must verify that the
 reviewed payload, write capability, warnings, and approval consequence are
 visible.
+
+Core state-machine tests also cover stage-aware failure context and retry:
+failure from each stage may return only to that stage, generic transitions out
+of `FAILED` are rejected, every retry at or beyond approval requires separate
+valid-approval and unchanged-payload-binding confirmations, persisted histories
+must retain both confirmation markers, and the happy path remains unchanged.
+Confidence tests reject duplicate evidence IDs and prove reordered unique
+evidence produces identical factors and canonical output. They also reject
+dangling record and explicit conflict references before penalty calculation,
+while preserving anonymous legacy-count behavior. Contract tests verify that
+omitted and explicit evidence provenance are canonical, deeply immutable, and
+stable under nested report serialization.
 
 ## Write-back/read-back payload-equivalence tests
 

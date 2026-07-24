@@ -2,11 +2,12 @@
 
 ## Status and verification boundary
 
-This is a planned architecture for an unimplemented application. No DataHub API
-name, MCP tool, mutation capability, asset name, metadata field, or dataset
-graph shape is confirmed here. DataHub behavior must be verified against
-official documentation and the actual running DataHub OSS and MCP tool
-inventory before implementation.
+Sprint 5 implements only the normalized deterministic domain core. The
+application and integrations remain planned. No DataHub API name, MCP tool,
+mutation capability, asset name, metadata field, or dataset graph shape is
+confirmed here. DataHub behavior must be verified against official
+documentation and the actual running DataHub OSS and MCP tool inventory before
+adapter implementation.
 
 ## Architectural objectives
 
@@ -108,6 +109,19 @@ record representation remain subject to validation during the DataHub dataset
 and MCP capability spikes.
 
 ## Backend components
+
+### Implemented normalized domain core
+
+`src/data_incident_commander/domain/` now provides strict Pydantic contracts
+and pure deterministic services for evidence, findings, lineage traversal,
+blast radius, severity rubric v1, confidence, remediation descriptions, human
+approval transitions, incident reports, and identifier-based incident-memory
+matching.
+
+The core depends only on normalized internal values. It does not import
+FastAPI, DataHub, MCP, frontend code, or an LLM. Future verified adapters own
+all translation from actual external payloads. See
+[DOMAIN_CONTRACTS.md](DOMAIN_CONTRACTS.md).
 
 ### FastAPI application boundary
 

@@ -6,17 +6,21 @@ application planned exclusively for the DataHub Agent Hackathon in the
 instance and verified **DataHub MCP Server** operations to investigate real
 metadata at runtime.
 
-> **Status:** Sprint 3 technical verification is in progress. The application,
-> integrations, UI, and write-back are not implemented, and DataHub has not
-> been installed or started.
+> **Status:** Sprint 5 implements the framework-independent deterministic
+> investigation core and unit tests. DataHub, MCP integration, FastAPI, React,
+> write-back, and the live application remain unimplemented.
 
 ## Current project status
 
 - Sprint 1: complete — repository and documentation foundation.
 - Sprint 2: complete — read-only macOS prerequisite validation.
-- Sprint 3: verification in progress — official DataHub requirements, versions,
-  ports, installation sequence, and MCP capabilities; no installation or
-  runtime validation yet.
+- Sprint 3: complete — official DataHub technical baseline documented.
+- Sprint 4: complete through runtime-strategy documentation — Docker and the
+  isolated CLI were validated; local DataHub startup remains blocked and no
+  remote infrastructure exists.
+- Sprint 5: implemented locally for review — strict normalized contracts,
+  deterministic lineage/blast-radius, severity, confidence, approval-state,
+  remediation, and incident-memory logic with synthetic unit tests.
 
 ## Project vision
 
@@ -154,8 +158,9 @@ boundaries.
 - DataHub OSS
 - DataHub MCP Server
 
-Dependencies and versions will be selected only after environment and
-capability validation. None are installed or declared in Sprint 1B.
+Sprint 5 pins Pydantic 2.11.10 and pytest 8.4.2 for the deterministic core in
+`requirements-backend.txt`. Application and integration dependency selection
+remains future work.
 
 ## Professional desktop UI
 
@@ -288,14 +293,25 @@ This repository is completely independent:
 Only material created for this repository or appropriately licensed public
 dependencies may be used.
 
-## Placeholder commands
+## Development commands
+
+`make setup` detects Python 3.11 or newer, creates the ignored repository-local
+`.venv` when absent, and installs the exact direct pins from
+`requirements-backend.txt`. It never installs globally and is safe to rerun.
+`make test` runs setup first and then executes the Sprint 5 unit suite through
+that environment.
 
 ```bash
 make check
 make setup
+make test
+```
+
+The remaining operational commands are placeholders:
+
+```bash
 make start
 make seed
-make test
 make smoke
 make demo
 make demo-check

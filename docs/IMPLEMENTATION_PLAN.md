@@ -89,6 +89,12 @@ invented tool name is accepted.
 
 **Goal:** Implement the read-only, evidence-grounded investigation core.
 
+**Sprint 5 status:** Partially complete. Normalized contracts and deterministic
+lineage, blast-radius, severity, confidence, remediation, approval-state, and
+incident-memory logic are implemented with isolated synthetic unit tests. The
+verified MCP adapter, runtime orchestration, asset resolution, Evidence Ledger
+assembly from live operations, and NYC Taxi integration remain pending.
+
 **Work:**
 
 - define Pydantic contracts for incident input, evidence, lineage, blast radius,
@@ -255,13 +261,16 @@ matches reality, no success is simulated, and all submission criteria pass.
 
 ## Planned Makefile mapping
 
-Current targets remain safe print-only placeholders in Sprint 1B. Their future
+The `check` target runs read-only prerequisite validation. `setup` now creates
+an ignored repository-local Python 3.11+ `.venv` and installs the Sprint 5
+pins; `test` invokes that idempotent bootstrap and runs the unit suite. Other
+unfinished targets remain safe print-only placeholders. Their future
 responsibilities are:
 
 | Target | Planned responsibility |
 | --- | --- |
 | `check` | Run the implemented read-only macOS prerequisite validation |
-| `setup` | Prerequisite checks and environment preparation |
+| `setup` | Implemented repository-local Sprint 5 Python/test bootstrap; broader environment preparation remains future work |
 | `start` | Start required services through modular scripts |
 | `seed` | Load and verify the NYC Taxi planted scenario |
 | `test` | Run the comprehensive automated suite |
