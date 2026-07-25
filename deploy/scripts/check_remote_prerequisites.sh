@@ -17,6 +17,8 @@ require_ubuntu_2404
 require_non_root
 
 failures=0
+readonly MIN_GUEST_MEMORY_MIB=15360
+readonly MIN_SWAP_KIB=2097152
 check_minimum() {
   local label="$1" actual="$2" minimum="$3"
   if ((actual >= minimum)); then log "PASS: ${label}: ${actual}"; else
@@ -29,8 +31,20 @@ arch="$(uname -m)"
 [[ "$arch" == "x86_64" || "$arch" == "aarch64" ]] ||
   { warn "FAIL: unsupported architecture ${arch}"; failures=$((failures + 1)); }
 check_minimum "CPU threads" "$(getconf _NPROCESSORS_ONLN)" 4
-memory_kib="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
-check_minimum "physical memory MiB" "$((memory_kib / 1024))" 16384
+memory_kib="$(
+  awk '$1 == "MemTotal:" && $2 ~ /^[0-9]+$/ {print $2; found=1; exit}
+       END {if (!found) exit 1}' /proc/meminfo 2>/dev/null
+)" || memory_kib=""
+if [[ "$memory_kib" =~ ^[0-9]+$ ]]; then
+  # A nominal 16-GiB VM exposes slightly less through Linux MemTotal because
+  # the virtual platform and kernel reserve memory. Keep a maximum 1-GiB
+  # allowance while rejecting hosts outside the approved 16-GB class.
+  check_minimum "guest-visible memory MiB" \
+    "$((memory_kib / 1024))" "$MIN_GUEST_MEMORY_MIB"
+else
+  warn "FAIL: MemTotal is missing or malformed."
+  failures=$((failures + 1))
+fi
 disk_mib="$(df -Pm "$DIC_DEPLOY_DIR" | awk 'NR==2 {print $4}')"
 check_minimum "available disk MiB" "$disk_mib" 51200
 
@@ -49,7 +63,17 @@ select_docker_command ||
 docker_safe compose version >/dev/null 2>&1 ||
   { warn "FAIL: Docker Compose v2 is unavailable."; failures=$((failures + 1)); }
 
-log "INFO: swap visible: $(awk '/SwapTotal/ {print $2 \" KiB\"}' /proc/meminfo)"
+swap_kib="$(
+  awk '$1 == "SwapTotal:" && $2 ~ /^[0-9]+$/ {print $2; found=1; exit}
+       END {if (!found) exit 1}' /proc/meminfo 2>/dev/null
+)" || swap_kib=""
+if [[ "$swap_kib" =~ ^[0-9]+$ ]]; then
+  log "INFO: SwapTotal: ${swap_kib} KiB"
+  check_minimum "swap KiB" "$swap_kib" "$MIN_SWAP_KIB"
+else
+  warn "FAIL: SwapTotal is missing or malformed."
+  failures=$((failures + 1))
+fi
 if command -v timedatectl >/dev/null 2>&1; then
   timedatectl show -p NTPSynchronized --value 2>/dev/null |
     sed 's/^/[DataIncident Commander] INFO: NTP synchronized: /'

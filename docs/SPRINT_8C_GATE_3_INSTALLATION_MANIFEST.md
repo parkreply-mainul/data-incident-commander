@@ -311,6 +311,12 @@ Expected: Ubuntu, CPU, memory, disk, Docker, Compose, curl, jq, Git, OpenSSL,
 daemon, swap visibility, NTP, and exclusive-port checks pass. The operator
 remains outside the Docker group, so the checker may use noninteractive sudo.
 
+The provider's nominal 16-GiB allocation is distinct from Linux `MemTotal`,
+which excludes virtual-platform and kernel reservations. The checker requires
+at least `15360` MiB guest-visible memory, allowing at most 1 GiB of reservation
+while retaining the approved 16-GB-class host gate. It also requires numeric
+`SwapTotal` of at least `2097152` KiB.
+
 Stop after this check. Do not pull or start DataHub and do not install MCP.
 
 ## Rollback
@@ -377,8 +383,6 @@ Gate 3 installation remains **NO-GO** until:
 - current official package metadata still contains the selected Engine pin;
 - the live console cost/credit impact is accepted;
 - package, swap, transfer, Docker, inspection, and later IP-removal approvals
-  are granted separately; and
-- the remote prerequisite check's 16-GB guest-memory handling is confirmed
-  against the actual `MemTotal` before relying on it as an acceptance gate.
+  are granted separately.
 
 DataHub startup, MCP installation, and mutation remain unapproved.

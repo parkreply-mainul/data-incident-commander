@@ -83,6 +83,7 @@ remote-check:
 	bash tests/deploy/test_verify_datahub_health.sh >/dev/null 2>&1; \
 	bash tests/deploy/test_health_url_validation.sh >/dev/null 2>&1; \
 	bash tests/deploy/test_gate2_base_host.sh >/dev/null 2>&1; \
+	bash tests/deploy/test_remote_prerequisite_resources.sh >/dev/null 2>&1; \
 	python3 -c 'compile(open("deploy/scripts/validate_health_urls.py", encoding="utf-8").read(), "deploy/scripts/validate_health_urls.py", "exec")'; \
 	test -f deploy/nginx/data-incident-commander.conf.template; \
 	rg -q 'location /api/' deploy/nginx/data-incident-commander.conf.template; \
