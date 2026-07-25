@@ -96,6 +96,11 @@ verified. No infrastructure exists. See the Gate 1 closure record.
 
 ### 3. Docker installation
 
+- Gate 3 may use a temporary ephemeral external IPv4 only for approved outbound
+  package/image access when no private-outbound path exists. SSH remains through
+  IAP, no public ingress is added, and the address must be removed after the
+  approved work or a separately approved private-outbound solution. See
+  `SPRINT_8C_GATE_3_INSTALLATION_MANIFEST.md`.
 - Use only the reviewed repository-local
   `deploy/scripts/install_docker_ubuntu.sh` installer. It implements Docker's
   official Ubuntu apt-repository procedure with project-specific safety checks

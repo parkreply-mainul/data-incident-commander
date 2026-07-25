@@ -58,6 +58,11 @@ Later, separate approval is required before swap, Docker installation, image
 pulls/DataHub startup, MCP installation, judge credentials, mutation
 evaluation, and destructive teardown.
 
+The prepared Gate 3 package, swap, transfer, Docker, and temporary outbound
+network sequence is recorded in
+`docs/SPRINT_8C_GATE_3_INSTALLATION_MANIFEST.md`. Its temporary ephemeral
+external IPv4 permits no public ingress and does not authorize execution.
+
 ## Commands after approval
 
 Only after a VM and private environment file exist:

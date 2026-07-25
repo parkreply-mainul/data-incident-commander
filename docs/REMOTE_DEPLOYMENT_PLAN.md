@@ -80,6 +80,13 @@ cloud firewall policy remain console-side evidence rather than guest claims.
 
 ## 5. Install Docker Engine and Compose
 
+The Gate 3 execution manifest is
+`SPRINT_8C_GATE_3_INSTALLATION_MANIFEST.md`. It records the temporary,
+outbound-use external-IPv4 exception, exact Engine/CLI pin, minimal host
+packages, swap procedure, IAP transfer boundary, rollback, and separate
+approvals. The exception authorizes no public ingress and must be removed after
+the approved work or a separately approved private-outbound solution.
+
 Use Docker's official distribution-specific repository instructions:
 [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/).
 
