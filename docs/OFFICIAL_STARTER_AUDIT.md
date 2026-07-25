@@ -19,7 +19,7 @@ Evidence classifications:
 - **Unknown until live runtime** means neither static source nor documentation
   proves behavior against our pinned server.
 - **Unsafe for production-style use** identifies behavior that conflicts with
-  DataIncident Commander's fail-closed and human-approval contracts.
+  Data Incident Commander's fail-closed and human-approval contracts.
 
 ## Complete source tree
 
@@ -182,7 +182,7 @@ and a README warning to use a local/test catalog. It does not:
 - retain an immutable audit history.
 
 Enabling mutation at agent construction gives the LLM immediate access to
-write tools. That is unsafe for DataIncident Commander's production-style
+write tools. That is unsafe for Data Incident Commander's production-style
 design and must not be copied.
 
 ## Error handling and verification
@@ -215,7 +215,7 @@ read-back verification.
 
 ## License and reuse boundary
 
-The starter is MIT licensed. DataIncident Commander targets Apache 2.0.
+The starter is MIT licensed. Data Incident Commander targets Apache 2.0.
 Concepts may be studied and attributed, and the hackathon rules permit starter
 templates, but no starter source has been copied into this repository. If code
 were ever adapted, license notices and submission disclosure would require
@@ -227,5 +227,5 @@ The starter proves a useful concept: Agent Context Kit can turn a direct
 DataHub Python client into framework tools with a very small amount of code.
 It does **not** prove standalone MCP operation, deterministic evidence
 grounding, safe mutation, human approval, runtime readiness, or reproducible
-deployment. DataIncident Commander should keep its domain, application, UI,
+deployment. Data Incident Commander should keep its domain, application, UI,
 EvidenceProvider, readiness, and approval architecture.

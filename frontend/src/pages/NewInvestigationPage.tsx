@@ -86,7 +86,7 @@ export function NewInvestigationPage() {
             <span className="section-number">01</span><div><h2>Incident identity</h2><p>Describe the signal without assuming a root cause.</p></div>
           </div>
           <Field label="Incident title" name="title" value={fields.title} error={errors.title} required maxLength={200} onChange={(value) => update("title", value)} placeholder="Example: Revenue dashboard data appears stale" />
-          <Field label="Target asset identifier" name="target" value={fields.target} error={errors.target} required maxLength={500} onChange={(value) => update("target", value)} placeholder="Verified external identifier or URN" hint="Use the identifier reported by the incident signal. It is not resolved in this sprint." />
+          <Field label="Target asset identifier" name="target" value={fields.target} error={errors.target} required maxLength={500} onChange={(value) => update("target", value)} placeholder="DataHub dataset URN" hint="Use the identifier from the incident signal. DIC resolves it during verified evidence collection." />
           <Field label="Description" name="description" value={fields.description} error={errors.description} maxLength={4000} textarea onChange={(value) => update("description", value)} placeholder="What was observed, when, and by whom?" />
           <Field label="Issue category" name="category" value={fields.category} error={errors.category} maxLength={100} onChange={(value) => update("category", value)} placeholder="Optional, for example freshness" />
           <div className="form-section form-section-spaced">
@@ -106,7 +106,7 @@ export function NewInvestigationPage() {
         <aside className="context-card">
           <span className="eyebrow">What happens next</span>
           <h2>Draft only</h2>
-          <ol><li><strong>A record is created</strong><span>The backend returns an incident ID and revision.</span></li><li><strong>No evidence is inferred</strong><span>Owners, lineage, severity, and remediation remain unavailable.</span></li><li><strong>Investigation fails visibly</strong><span>Until DataHub and MCP are configured, the real action returns a dependency error.</span></li></ol>
+          <ol><li><strong>A record is created</strong><span>The backend returns an incident ID and revision.</span></li><li><strong>No evidence is inferred</strong><span>Owners, lineage, severity, and remediation wait for verified evidence.</span></li><li><strong>Investigation remains gated</strong><span>DataHub and mandatory MCP verification must complete before evidence collection can proceed.</span></li></ol>
         </aside>
       </div>
     </>

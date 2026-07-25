@@ -79,14 +79,14 @@ def test_unconfigured_investigation_fails_without_mutating_draft():
     assert stored.report is None
 
 
-def test_draft_invokes_provider_before_dependency_failure():
+def test_unready_mcp_is_rejected_before_provider_collection():
     service, repository = build_service("incident")
     provider = CountingUnavailableProvider()
     service.evidence_provider = provider
     record = service.create_draft(CreateInvestigation(title="Draft", target_asset_id="asset"))
     with pytest.raises(DependencyUnavailable):
         service.investigate(record.incident_id)
-    assert provider.calls == 1
+    assert provider.calls == 0
     assert repository.get(record.incident_id) == record
 
 

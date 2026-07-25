@@ -28,7 +28,7 @@ HTTPS-only proxy. They do not provision infrastructure or authorize startup.
 
 ## Architectural objectives
 
-DataIncident Commander must:
+Data Incident Commander must:
 
 - perform real runtime investigation through DataHub OSS and verified DataHub
   MCP Server operations;

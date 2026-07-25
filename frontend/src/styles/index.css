@@ -195,9 +195,9 @@ td small { color: var(--text-secondary); margin-top: 4px; font-size: 10px; }
 .timeline p, .timeline small { margin: 3px 0 0; font-size: 11px; color: var(--text-secondary); }
 .future-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .future-panel { min-height: 145px; border: 1px dashed var(--border-strong); border-radius: var(--radius); background: rgba(255,255,255,.5); padding: 19px; }
-.future-panel-head { display: flex; justify-content: space-between; gap: 12px; }
+.future-panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .future-panel h3 { margin: 0; }
-.future-panel-head span { color: var(--text-secondary); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+.future-panel-head span { color: var(--text-secondary); font-size: 9px; line-height: 1.35; text-align: right; text-transform: uppercase; letter-spacing: .08em; max-width: 112px; }
 .future-panel p { font-size: 12px; margin: 18px 0 0; }
 .text-alternative { display: block; color: var(--text-secondary); margin-top: 12px; }
 .detail-rail { display: grid; gap: 16px; position: sticky; top: 96px; }

@@ -4,7 +4,7 @@ export function LoadingState({ label = "Loading workspace" }: { label?: string }
   return (
     <div className="feedback-card loading-state" role="status">
       <span className="spinner" aria-hidden="true" />
-      <div><strong>{label}</strong><p>Retrieving current backend state.</p></div>
+      <div><strong>{label}</strong><p>Loading the latest workspace data.</p></div>
     </div>
   );
 }
@@ -39,7 +39,7 @@ export function ErrorState({
     <div className="feedback-card error-state" role="alert" aria-live="assertive">
       <span className="error-icon" aria-hidden="true">!</span>
       <div>
-        <strong>{apiError?.kind === "network" ? "Backend offline" : "Request failed"}</strong>
+        <strong>{apiError?.kind === "network" ? "Service connection interrupted" : "Request could not be completed"}</strong>
         <p>{message}</p>
         {apiError?.requestId && <small>Request ID: <code>{apiError.requestId}</code></small>}
         {onRetry && <button className="button button-secondary" onClick={onRetry}>Try again</button>}

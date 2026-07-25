@@ -25,9 +25,9 @@ describe("investigations list", () => {
       .mockRejectedValueOnce(new Error("offline"));
     vi.stubGlobal("fetch", fetchMock);
     const { rerender } = render(<InvestigationsPage />);
-    expect(await screen.findByText("No records on this page")).toBeVisible();
+    expect(await screen.findByText("Ready for the first incident")).toBeVisible();
     rerender(<InvestigationsPage key="offline" />);
-    expect(await screen.findByText("Backend offline")).toBeVisible();
+    expect(await screen.findByText("Service connection interrupted")).toBeVisible();
     expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled();
   });
 

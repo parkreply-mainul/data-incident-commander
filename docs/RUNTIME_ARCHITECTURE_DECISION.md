@@ -39,7 +39,7 @@ effort. Runtime facts remain subject to Sprint 8C.
 
 The official starter is optimized for teaching: it directly converts Agent
 Context Kit capabilities into LangChain tools and lets a tool-calling LLM run
-the loop. That reduces tutorial code, but DataIncident Commander has already
+the loop. That reduces tutorial code, but Data Incident Commander has already
 implemented the boundaries the starter omits: evidence provenance,
 deterministic calculation, safe errors, component readiness, optimistic
 concurrency, human approval, and a professional UI.

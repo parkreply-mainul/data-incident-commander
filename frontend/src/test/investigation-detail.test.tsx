@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { InvestigationDetailPage } from "../pages/InvestigationDetailPage";
@@ -33,8 +33,8 @@ describe("investigation detail", () => {
     expect(await screen.findByRole("heading", { name: draft.title })).toBeVisible();
     expect(screen.getByText(draft.target_asset_id)).toBeVisible();
     expect(screen.getByText("Draft created")).toBeVisible();
-    expect(screen.getByText("Evidence Ledger")).toBeVisible();
-    expect(screen.getByText("No verified DataHub/MCP evidence has been retrieved.")).toBeVisible();
+    expect(screen.getByText("Evidence ledger")).toBeVisible();
+    expect(screen.getByText("Verified DataHub MCP evidence will appear after collection.")).toBeVisible();
     expect(screen.queryByText(/critical severity/i)).not.toBeInTheDocument();
   });
 
@@ -71,12 +71,12 @@ describe("investigation detail", () => {
     const user = userEvent.setup();
     render(<InvestigationDetailPage incidentId={draft.incident_id} />);
     await screen.findByRole("heading", { name: draft.title });
-    await user.click(screen.getByRole("button", { name: "Investigate with live evidence" }));
+    await user.click(screen.getByRole("button", { name: "Collect verified DataHub evidence" }));
     const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent("Evidence dependencies unavailable");
+    expect(alert).toHaveTextContent("Evidence verification is pending");
     expect(alert).toHaveTextContent("request-investigate");
     expect(alert).toHaveTextContent("remains DRAFT");
-    expect(screen.getByText("No evidence yet")).toBeVisible();
+    expect(screen.getByText("Awaiting evidence collection")).toBeVisible();
   });
 
   it("refreshes after a conflict and displays the latest non-DRAFT state", async () => {
@@ -98,7 +98,7 @@ describe("investigation detail", () => {
     const user = userEvent.setup();
     render(<InvestigationDetailPage incidentId={draft.incident_id} />);
     await screen.findByRole("heading", { name: draft.title });
-    await user.click(screen.getByRole("button", { name: "Investigate with live evidence" }));
+    await user.click(screen.getByRole("button", { name: "Collect verified DataHub evidence" }));
     const alert = await screen.findByRole("alert");
     expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(alert).toHaveTextContent("Investigation changed elsewhere");
@@ -106,7 +106,7 @@ describe("investigation detail", () => {
     expect(alert).toHaveTextContent("request-conflict");
     expect(alert).not.toHaveTextContent("remains DRAFT");
     expect(screen.getAllByText("INVESTIGATED")).toHaveLength(2);
-    expect(screen.getByRole("button", { name: "Investigate with live evidence" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Evidence collected" })).toBeDisabled();
     expect(screen.queryByText(/critical severity/i)).not.toBeInTheDocument();
   });
 
@@ -128,7 +128,7 @@ describe("investigation detail", () => {
     const user = userEvent.setup();
     render(<InvestigationDetailPage incidentId={draft.incident_id} />);
     await screen.findByRole("heading", { name: draft.title });
-    await user.click(screen.getByRole("button", { name: "Investigate with live evidence" }));
+    await user.click(screen.getByRole("button", { name: "Collect verified DataHub evidence" }));
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Latest state: AWAITING_APPROVAL, revision 4");
     expect(alert).toHaveTextContent("request-state");
@@ -153,14 +153,129 @@ describe("investigation detail", () => {
     const user = userEvent.setup();
     render(<InvestigationDetailPage incidentId={draft.incident_id} />);
     await screen.findByRole("heading", { name: draft.title });
-    await user.click(screen.getByRole("button", { name: "Investigate with live evidence" }));
+    await user.click(screen.getByRole("button", { name: "Collect verified DataHub evidence" }));
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("latest incident state could not be confirmed");
     expect(alert).toHaveTextContent("request-refresh-failed");
     expect(alert).not.toHaveTextContent("remains DRAFT");
     expect(alert).not.toHaveTextContent("network detail must not leak");
     expect(screen.getByRole("button", { name: "Refresh record" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "Investigate with live evidence" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Collect verified DataHub evidence" })).toBeEnabled();
+  });
+
+  it("shows verification failure as retryable and retries write-back", async () => {
+    const approved = { ...draft, state: "APPROVED", revision: 4 };
+    const verificationPending = { ...approved, state: "WRITEBACK_PENDING", revision: 6 };
+    const recorded = { ...approved, state: "RECORDED", revision: 7 };
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(() => jsonResponse(approved))
+      .mockImplementationOnce(() => jsonResponse({
+        error: {
+          code: "WRITEBACK_VERIFICATION_PENDING",
+          message: "The DataHub mutation may have succeeded, but read-back verification is pending or failed. The incident remains in verification-pending state and read-back can be retried without repeating the mutation.",
+          retryable: true,
+          request_id: "request-writeback",
+          details: {
+            incident_state: "WRITEBACK_PENDING",
+            mutation_status: "may_have_succeeded",
+            verification_status: "pending_or_failed",
+          },
+        },
+      }, 409))
+      .mockImplementationOnce(() => jsonResponse(verificationPending))
+      .mockImplementationOnce(() => jsonResponse(recorded))
+      .mockImplementationOnce(() => jsonResponse(recorded));
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<InvestigationDetailPage incidentId={draft.incident_id} />);
+
+    await screen.findByRole("button", { name: "Write tag and verify in DataHub" });
+    await user.click(screen.getByRole("button", { name: "Write tag and verify in DataHub" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("DataHub verification is retryable");
+    expect(alert).toHaveTextContent("without repeating the mutation");
+    expect(alert).toHaveTextContent("Latest state: WRITEBACK_PENDING, revision 6");
+
+    await user.click(within(alert).getByRole("button", { name: "Retry failed DataHub read-back verification" }));
+    expect(await screen.findByText("RECORDED")).toBeVisible();
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+  });
+
+  it.each([
+    {
+      name: "investigate",
+      incident: draft,
+      actionLabel: "Collect verified DataHub evidence",
+      retryLabel: "Retry evidence collection",
+      endpoint: "/investigate",
+    },
+    {
+      name: "submit",
+      incident: { ...draft, state: "INVESTIGATED" },
+      actionLabel: "Send report for human review",
+      retryLabel: "Retry sending for human review",
+      endpoint: "/submit-for-approval",
+    },
+    {
+      name: "approval",
+      incident: {
+        ...draft,
+        state: "AWAITING_APPROVAL",
+        expected_payload_binding_id: "sha256:bound",
+      },
+      actionLabel: "Approve bound report",
+      retryLabel: "Retry bound report approval",
+      endpoint: "/approve",
+    },
+    {
+      name: "initial write-back",
+      incident: { ...draft, state: "APPROVED" },
+      actionLabel: "Write tag and verify in DataHub",
+      retryLabel: "Retry initial DataHub write-back",
+      endpoint: "/writeback",
+    },
+    {
+      name: "verification",
+      incident: { ...draft, state: "WRITEBACK_PENDING" },
+      actionLabel: "Retry DataHub read-back verification",
+      retryLabel: "Retry failed DataHub read-back verification",
+      endpoint: "/writeback",
+    },
+  ])("retries the failed $name endpoint only", async ({
+    incident,
+    actionLabel,
+    retryLabel,
+    endpoint,
+  }) => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(() => jsonResponse(incident))
+      .mockImplementationOnce(() => jsonResponse({
+        error: {
+          code: "DEPENDENCY_UNAVAILABLE",
+          message: "The requested action is temporarily unavailable.",
+          retryable: true,
+          request_id: "request-action",
+          details: {},
+        },
+      }, 503))
+      .mockImplementationOnce(() => jsonResponse(incident))
+      .mockImplementationOnce(() => jsonResponse(incident));
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<InvestigationDetailPage incidentId={draft.incident_id} />);
+
+    await user.click(await screen.findByRole("button", { name: actionLabel }));
+    const alert = await screen.findByRole("alert");
+    await user.click(within(alert).getByRole("button", { name: retryLabel }));
+
+    expect(String(fetchMock.mock.calls[1][0])).toContain(endpoint);
+    expect(String(fetchMock.mock.calls[2][0])).toContain(endpoint);
+    expect(String(fetchMock.mock.calls[2][0])).not.toContain(
+      endpoint === "/investigate" ? "/writeback" : "/investigate",
+    );
   });
 
   it("renders incident-not-found safely", async () => {

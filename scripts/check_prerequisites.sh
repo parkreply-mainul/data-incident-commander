@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Read-only macOS prerequisite inspection for DataIncident Commander.
+# Read-only macOS prerequisite inspection for Data Incident Commander.
 # This script does not install software, start or stop services, modify
 # configuration, inspect environment variables, or print credentials.
 
@@ -57,7 +57,7 @@ version_probe() {
   return 0
 }
 
-printf '%s\n' 'DataIncident Commander — macOS prerequisite check'
+printf '%s\n' 'Data Incident Commander — macOS prerequisite check'
 printf '%s\n' 'Read-only: no installation, service startup, or configuration changes.'
 printf '\n'
 

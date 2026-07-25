@@ -50,6 +50,7 @@ export interface Investigation {
   state: string;
   history: AuditTransition[];
   payload_binding_id: string | null;
+  expected_payload_binding_id: string | null;
   last_action_reason: string | null;
   report: Record<string, unknown> | null;
   created_at: string;

@@ -15,6 +15,7 @@ from data_incident_commander.application.errors import (
     IncidentNotFound,
     InvalidWorkflowTransition,
     ProviderOutputMismatch,
+    WritebackVerificationFailure,
 )
 
 
@@ -86,6 +87,27 @@ def install_error_handlers(app: FastAPI) -> None:
             code="DEPENDENCY_UNAVAILABLE",
             message="A required investigation dependency is unavailable.",
             retryable=True,
+        )
+
+    @app.exception_handler(WritebackVerificationFailure)
+    async def writeback_verification_pending(
+        request: Request, _: WritebackVerificationFailure
+    ) -> JSONResponse:
+        return error_response(
+            request,
+            status_code=409,
+            code="WRITEBACK_VERIFICATION_PENDING",
+            message=(
+                "The DataHub mutation may have succeeded, but read-back verification "
+                "is pending or failed. The incident remains in verification-pending "
+                "state and read-back can be retried without repeating the mutation."
+            ),
+            retryable=True,
+            details={
+                "incident_state": "WRITEBACK_PENDING",
+                "mutation_status": "may_have_succeeded",
+                "verification_status": "pending_or_failed",
+            },
         )
 
     @app.exception_handler(ProviderOutputMismatch)

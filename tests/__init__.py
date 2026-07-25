@@ -1,1 +1,1 @@
-"""DataIncident Commander test suite."""
+"""Data Incident Commander test suite."""

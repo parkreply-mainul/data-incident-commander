@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import hashlib
 from uuid import uuid4
 
 from data_incident_commander.domain.models import IncidentState
@@ -15,6 +16,7 @@ from .errors import (
     IncidentNotFound,
     InvalidWorkflowTransition,
     ProviderOutputMismatch,
+    WritebackVerificationFailure,
 )
 from .protocols import (
     Clock,
@@ -56,16 +58,23 @@ class UnconfiguredEvidenceProvider:
 
 
 class InvestigationService:
+    MUTATION_IN_PROGRESS = "DataHub mutation is in progress."
+    VERIFICATION_PENDING = (
+        "DataHub mutation was attempted; read-back verification is pending."
+    )
+
     def __init__(
         self,
         repository: IncidentRepository,
         evidence_provider: EvidenceProvider,
         *,
+        writeback_provider: object | None = None,
         id_provider: IncidentIdProvider | None = None,
         clock: Clock | None = None,
     ) -> None:
         self.repository = repository
         self.evidence_provider = evidence_provider
+        self.writeback_provider = writeback_provider
         self.id_provider = id_provider or UuidIncidentIdProvider()
         self.clock = clock or UtcClock()
 
@@ -102,6 +111,16 @@ class InvestigationService:
         if record.workflow.current_state is not IncidentState.DRAFT:
             raise InvalidWorkflowTransition(
                 f"{record.workflow.current_state.value} -> INVESTIGATED is invalid"
+            )
+        readiness = self.evidence_provider.readiness
+        if not (
+            readiness.configured
+            and readiness.available
+            and readiness.supports_datahub
+            and readiness.supports_mcp
+        ):
+            raise DependencyUnavailable(
+                "A verified and ready DataHub MCP evidence provider is required."
             )
         report = self.evidence_provider.investigate(record)
         mismatches: list[str] = []
@@ -145,6 +164,11 @@ class InvestigationService:
 
     def approve(self, incident_id: str, command: ApprovalCommand) -> InvestigationRecord:
         record = self.get(incident_id)
+        expected_binding = self.payload_binding(record)
+        if expected_binding is not None and command.payload_binding_id != expected_binding:
+            raise InvalidWorkflowTransition(
+                "Approval payload binding does not match the investigated report."
+            )
         now = self.clock.now()
         try:
             workflow = record.workflow.transition(
@@ -165,6 +189,130 @@ class InvestigationService:
                 }
             ),
             expected_revision=record.revision,
+        )
+
+    @staticmethod
+    def payload_binding(record: InvestigationRecord) -> str | None:
+        if record.report is None:
+            return None
+        payload = record.report.model_dump_json(exclude={"updated_at"})
+        return "sha256:" + hashlib.sha256(payload.encode()).hexdigest()
+
+    def writeback(self, incident_id: str, command: ActorCommand) -> InvestigationRecord:
+        record = self.get(incident_id)
+        if record.workflow.current_state not in {
+            IncidentState.APPROVED,
+            IncidentState.WRITEBACK_PENDING,
+        }:
+            raise InvalidWorkflowTransition(
+                f"{record.workflow.current_state.value} -> WRITEBACK_PENDING is invalid"
+            )
+        if record.payload_binding_id != self.payload_binding(record):
+            raise InvalidWorkflowTransition("Approved payload binding is no longer valid.")
+        provider = self.writeback_provider or self.evidence_provider
+        verifier = getattr(provider, "verify_writeback", None)
+        if verifier is None:
+            raise DependencyUnavailable(
+                "The evidence provider does not support write-back verification."
+            )
+        if record.workflow.current_state is IncidentState.WRITEBACK_PENDING:
+            if record.last_action_reason != self.VERIFICATION_PENDING:
+                raise InvalidWorkflowTransition(
+                    "DataHub mutation is still in progress; verification cannot start yet."
+                )
+            return self._verify_writeback(record, verifier)
+        readiness = provider.readiness
+        if not (
+            readiness.configured
+            and readiness.available
+            and readiness.supports_datahub
+            and readiness.supports_writeback
+        ):
+            raise DependencyUnavailable(
+                "Approval-gated DataHub write-back is disabled or unavailable."
+            )
+        mutator = getattr(provider, "mutate_writeback", None)
+        if mutator is None:
+            raise DependencyUnavailable(
+                "The evidence provider does not support controlled write-back."
+            )
+        now = self.clock.now()
+        pending = record.workflow.transition(
+            IncidentState.WRITEBACK_PENDING, actor=command.actor, occurred_at=now
+        )
+        pending_record = self.repository.save(
+            record.model_copy(
+                update={
+                    "workflow": pending,
+                    "last_action_reason": self.MUTATION_IN_PROGRESS,
+                    "updated_at": now,
+                }
+            ),
+            expected_revision=record.revision,
+        )
+        try:
+            mutator(pending_record)
+        except Exception as error:
+            failed_at = self.clock.now()
+            if isinstance(error, WritebackVerificationFailure):
+                self.repository.save(
+                    pending_record.model_copy(
+                        update={
+                            "last_action_reason": self.VERIFICATION_PENDING,
+                            "updated_at": failed_at,
+                        }
+                    ),
+                    expected_revision=pending_record.revision,
+                )
+                raise
+            failed = pending_record.workflow.transition(
+                IncidentState.FAILED,
+                actor="datahub-writeback",
+                occurred_at=failed_at,
+                failure_reason="DataHub write-back or read-back verification failed.",
+            )
+            self.repository.save(
+                pending_record.model_copy(
+                    update={
+                        "workflow": failed,
+                        "last_action_reason": (
+                            "DataHub write-back or read-back verification failed."
+                        ),
+                        "updated_at": failed_at,
+                    }
+                ),
+                expected_revision=pending_record.revision,
+            )
+            raise
+        verification_at = self.clock.now()
+        verification_record = self.repository.save(
+            pending_record.model_copy(
+                update={
+                    "last_action_reason": self.VERIFICATION_PENDING,
+                    "updated_at": verification_at,
+                }
+            ),
+            expected_revision=pending_record.revision,
+        )
+        return self._verify_writeback(verification_record, verifier)
+
+    def _verify_writeback(self, pending_record, verifier):
+        receipt = verifier(pending_record)
+        report = pending_record.report.model_copy(
+            update={
+                "evidence_ledger": pending_record.report.evidence_ledger + (receipt,),
+                "updated_at": self.clock.now(),
+            }
+        )
+        recorded_at = self.clock.now()
+        recorded = pending_record.workflow.transition(
+            IncidentState.RECORDED, actor="datahub-readback-verifier", occurred_at=recorded_at
+        )
+        return self.repository.save(
+            pending_record.model_copy(
+                update={"workflow": recorded, "report": report, "updated_at": recorded_at}
+            ),
+            expected_revision=pending_record.revision,
         )
 
     def retry(self, incident_id: str, command: RetryCommand) -> InvestigationRecord:

@@ -2,7 +2,7 @@
 
 ## Project identity
 
-**Name:** DataIncident Commander  
+**Name:** Data Incident Commander
 **Program:** DataHub Agent Hackathon  
 **Target category:** Agents That Do Real Work  
 **Repository type:** Standalone public Apache 2.0 repository  

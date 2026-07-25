@@ -9,10 +9,10 @@ describe("system readiness", () => {
     vi.stubGlobal("fetch", vi.fn(() => jsonResponse(readiness)));
     render(<SystemStatusPage />);
     expect(await screen.findByText("DataHub OSS")).toBeVisible();
-    expect(screen.getAllByText("not configured").length).toBeGreaterThan(0);
-    expect(screen.getByText("unavailable")).toBeVisible();
-    expect(screen.getAllByText("disabled").length).toBeGreaterThan(0);
-    expect(screen.getByText("Full incident workflow is not ready")).toBeVisible();
+    expect(screen.getAllByText("Awaiting setup").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Verification pending").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Safeguard active").length).toBeGreaterThan(0);
+    expect(screen.getByText("Workflow verification is in progress")).toBeVisible();
   });
 
   it("refreshes manually and does not retain stale readiness on failure", async () => {
@@ -25,7 +25,7 @@ describe("system readiness", () => {
     render(<SystemStatusPage />);
     await screen.findByText("DataHub OSS");
     await user.click(screen.getByRole("button", { name: "Refresh status" }));
-    expect(await screen.findByText("Backend offline")).toBeVisible();
+    expect(await screen.findByText("Service connection interrupted")).toBeVisible();
     expect(screen.queryByText("DataHub OSS")).not.toBeInTheDocument();
   });
 

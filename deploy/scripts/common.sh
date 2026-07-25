@@ -5,9 +5,9 @@ readonly DIC_SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 readonly DIC_DEPLOY_DIR="$(cd -- "${DIC_SCRIPT_DIR}/.." && pwd -P)"
 declare -a DIC_DOCKER_COMMAND=(docker)
 
-log() { printf '[DataIncident Commander] %s\n' "$*"; }
-warn() { printf '[DataIncident Commander] WARN: %s\n' "$*" >&2; }
-die() { printf '[DataIncident Commander] ERROR: %s\n' "$*" >&2; exit 1; }
+log() { printf '[Data Incident Commander] %s\n' "$*"; }
+warn() { printf '[Data Incident Commander] WARN: %s\n' "$*" >&2; }
+die() { printf '[Data Incident Commander] ERROR: %s\n' "$*" >&2; exit 1; }
 
 require_command() {
   command -v "$1" >/dev/null 2>&1 || die "Required command is unavailable: $1"

@@ -44,6 +44,7 @@ const ERROR_KINDS: Record<string, ApiErrorKind> = {
   CONFLICT: "conflict",
   INCIDENT_CONFLICT: "conflict",
   INVALID_STATE_TRANSITION: "conflict",
+  WRITEBACK_VERIFICATION_PENDING: "conflict",
   PROVIDER_OUTPUT_MISMATCH: "internal",
   INTERNAL_ERROR: "internal",
 };
@@ -167,6 +168,27 @@ export class ApiClient {
       `/api/v1/investigations/${encodeURIComponent(incidentId)}/investigate`,
       { method: "POST" },
     );
+  }
+
+  submitForApproval(incidentId: string) {
+    return this.request<Investigation>(`/api/v1/investigations/${encodeURIComponent(incidentId)}/submit-for-approval`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actor: "demo-operator" }),
+    });
+  }
+
+  approve(incidentId: string, payloadBindingId: string) {
+    return this.request<Investigation>(`/api/v1/investigations/${encodeURIComponent(incidentId)}/approve`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actor: "human-reviewer", reason: "Evidence and remediation reviewed for the demo.", payload_binding_id: payloadBindingId }),
+    });
+  }
+
+  writeback(incidentId: string) {
+    return this.request<Investigation>(`/api/v1/investigations/${encodeURIComponent(incidentId)}/writeback`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actor: "approved-demo-operator" }),
+    });
   }
 }
 

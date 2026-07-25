@@ -9,7 +9,7 @@ export function FuturePanel({
 }) {
   return (
     <section className="future-panel" aria-disabled="true">
-      <div className="future-panel-head"><h3>{title}</h3><span>Unavailable</span></div>
+      <div className="future-panel-head"><h3>{title}</h3><span>Awaiting verified evidence</span></div>
       <p>{description}</p>
       {textAlternative && <small className="text-alternative">{textAlternative}</small>}
     </section>

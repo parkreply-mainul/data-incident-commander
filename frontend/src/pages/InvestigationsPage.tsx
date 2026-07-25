@@ -13,11 +13,11 @@ export function InvestigationsPage() {
   const result = useAsync((signal) => api.listInvestigations(offset, LIMIT, signal), [offset]);
   return (
     <>
-      <PageHeader eyebrow="Incident register" title="Investigations" description="Deterministic records returned by the current application repository." actions={<button className="button button-primary" onClick={() => navigate("/investigations/new")}>New investigation</button>} />
+      <PageHeader eyebrow="Incident register" title="Investigations" description="Auditable incident records with evidence, decisions, approvals, and workflow history." actions={<button className="button button-primary" onClick={() => navigate("/investigations/new")}>New investigation</button>} />
       <section className="section-block">
         {result.loading && <LoadingState label="Loading incident register" />}
         {Boolean(result.error) && <ErrorState error={result.error} onRetry={() => { void result.refresh(); }} />}
-        {result.data?.items.length === 0 && <EmptyState title="No records on this page" body={offset ? "Return to the previous page or refresh the register." : "Create a draft investigation to populate the register."} />}
+        {result.data?.items.length === 0 && <EmptyState title={offset ? "No records on this page" : "Ready for the first incident"} body={offset ? "Return to the previous page or refresh the register." : "Create a factual investigation draft to begin the incident record."} action={!offset ? <button className="button button-secondary" onClick={() => navigate("/investigations/new")}>Create first investigation</button> : undefined} />}
         {result.data && result.data.items.length > 0 && <InvestigationTable items={result.data.items} />}
         {result.data && (
           <nav className="pagination" aria-label="Investigation pages">

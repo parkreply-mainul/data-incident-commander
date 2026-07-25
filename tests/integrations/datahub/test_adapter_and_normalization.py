@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from data_incident_commander.domain.models import EvidenceType, OwnerKind
 from data_incident_commander.api.app import create_app
 from data_incident_commander.application.commands import CreateInvestigation
+from data_incident_commander.application.errors import DependencyUnavailable
 from data_incident_commander.config import Settings
 from data_incident_commander.integrations.datahub.adapter import DataHubMcpEvidenceProvider
 from data_incident_commander.integrations.datahub.capabilities import (
@@ -186,7 +187,9 @@ def test_unimplemented_orchestration_produces_no_report_or_state_change():
         )
     )
 
-    with pytest.raises(McpUnavailable, match="not implemented"):
+    with pytest.raises(
+        DependencyUnavailable, match="verified and ready DataHub MCP"
+    ):
         service.investigate(draft.incident_id)
 
     stored = repository.get(draft.incident_id)

@@ -11,6 +11,7 @@ export const draft: Investigation = {
   state: "DRAFT",
   history: [],
   payload_binding_id: null,
+  expected_payload_binding_id: null,
   last_action_reason: null,
   report: null,
   created_at: "2026-07-24T12:00:00Z",
@@ -26,7 +27,7 @@ export const list: InvestigationList = {
 
 export const readiness: ReadinessResponse = {
   status: "not_ready",
-  service: "DataIncident Commander",
+  service: "Data Incident Commander",
   timestamp: "2026-07-24T12:00:00Z",
   components: {
     application: { status: "ready", detail: "API process is available." },

@@ -19,7 +19,9 @@ _VALID_TRANSITIONS: dict[IncidentState, frozenset[IncidentState]] = {
     IncidentState.INVESTIGATED: frozenset({IncidentState.AWAITING_APPROVAL, IncidentState.FAILED}),
     IncidentState.AWAITING_APPROVAL: frozenset({IncidentState.APPROVED, IncidentState.FAILED}),
     IncidentState.APPROVED: frozenset({IncidentState.WRITEBACK_PENDING, IncidentState.FAILED}),
-    IncidentState.WRITEBACK_PENDING: frozenset({IncidentState.RECORDED, IncidentState.FAILED}),
+    IncidentState.WRITEBACK_PENDING: frozenset(
+        {IncidentState.RECORDED, IncidentState.FAILED}
+    ),
     IncidentState.RECORDED: frozenset({IncidentState.RESOLVED, IncidentState.FAILED}),
     IncidentState.RESOLVED: frozenset(),
     IncidentState.FAILED: frozenset(),

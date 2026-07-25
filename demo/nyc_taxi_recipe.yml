@@ -1,0 +1,9 @@
+source:
+  type: file
+  config:
+    filename: ./demo/nyc_taxi_metadata.json
+sink:
+  type: datahub-rest
+  config:
+    server: ${DIC_GMS_URL}
+    token: ${DATAHUB_GMS_TOKEN}

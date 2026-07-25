@@ -11,10 +11,10 @@ readonly MIN_CLOCK_EPOCH=1704067200
 failures=0
 warnings=0
 
-log() { printf '[DataIncident Commander Gate 2] %s\n' "$*"; }
+log() { printf '[Data Incident Commander Gate 2] %s\n' "$*"; }
 pass() { log "PASS: $*"; }
-warn() { printf '[DataIncident Commander Gate 2] WARN: %s\n' "$*" >&2; warnings=$((warnings + 1)); }
-fail() { printf '[DataIncident Commander Gate 2] FAIL: %s\n' "$*" >&2; failures=$((failures + 1)); }
+warn() { printf '[Data Incident Commander Gate 2] WARN: %s\n' "$*" >&2; warnings=$((warnings + 1)); }
+fail() { printf '[Data Incident Commander Gate 2] FAIL: %s\n' "$*" >&2; failures=$((failures + 1)); }
 
 usage() {
   cat <<'EOF'
@@ -48,7 +48,7 @@ for name in uname getconf awk df hostname date ps; do
   else fail "base image command unavailable: ${name}"; fi
 done
 if ((failures)); then
-  printf '[DataIncident Commander Gate 2] ERROR: base command preflight failed; no further probes ran.\n' >&2
+  printf '[Data Incident Commander Gate 2] ERROR: base command preflight failed; no further probes ran.\n' >&2
   exit 1
 fi
 
@@ -251,7 +251,7 @@ log "INFO: guest evidence cannot prove provider NAT/external-IP absence; console
 log "INFO: OS Login, IAP, IAM, and cloud firewall policy are console-side gates and are not inferred from the guest."
 
 if ((failures)); then
-  printf '[DataIncident Commander Gate 2] ERROR: %d blocking check(s) failed; %d warning(s).\n' "$failures" "$warnings" >&2
+  printf '[Data Incident Commander Gate 2] ERROR: %d blocking check(s) failed; %d warning(s).\n' "$failures" "$warnings" >&2
   exit 1
 fi
 log "PASS: Gate 2 base-host checks passed with ${warnings} warning(s)."

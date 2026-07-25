@@ -63,7 +63,7 @@ def test_readiness_does_not_claim_demo_readiness(api_context):
     assert body["status"] == "not_ready"
     assert body["components"]["datahub"]["status"] == "not_configured"
     assert body["components"]["mcp"]["status"] == "not_configured"
-    assert body["components"]["writeback"]["status"] == "disabled"
+    assert body["components"]["writeback"]["status"] == "not_configured"
     assert body["components"]["evidence_provider"]["status"] == "not_configured"
 
 
@@ -110,6 +110,50 @@ def test_datahub_only_and_mcp_capabilities_are_distinct(api_context):
     mcp_backed = client.get("/health/readiness").json()["components"]
     assert mcp_backed["datahub"]["status"] == "ready"
     assert mcp_backed["mcp"]["status"] == "ready"
+
+
+def test_gms_writeback_readiness_is_separate_from_unavailable_mcp(api_context):
+    client, service, _ = api_context
+    service.writeback_provider = ReadinessProvider(supports_writeback=True)
+
+    components = client.get("/health/readiness").json()["components"]
+
+    assert components["mcp"]["status"] == "not_configured"
+    assert components["evidence_provider"]["status"] == "not_configured"
+    assert components["writeback"]["status"] == "ready"
+
+
+def test_writeback_readiness_reports_disabled_mutation(api_context):
+    client, service, _ = api_context
+    service.writeback_provider = ReadinessProvider(supports_writeback=False)
+
+    assert (
+        client.get("/health/readiness").json()["components"]["writeback"]["status"]
+        == "disabled"
+    )
+
+
+def test_writeback_readiness_reports_unavailable_provider(api_context):
+    client, service, _ = api_context
+    service.writeback_provider = ReadinessProvider(
+        available=False,
+        supports_writeback=True,
+        status="unavailable",
+    )
+
+    assert (
+        client.get("/health/readiness").json()["components"]["writeback"]["status"]
+        == "unavailable"
+    )
+
+
+def test_writeback_readiness_reports_enabled_available_provider(api_context):
+    client, service, _ = api_context
+    service.writeback_provider = ReadinessProvider(supports_writeback=True)
+
+    body = client.get("/health/readiness").json()
+    assert body["components"]["writeback"]["status"] == "ready"
+    assert body["status"] == "not_ready"
 
 
 def test_validation_error_is_stable_and_public_safe(api_context):

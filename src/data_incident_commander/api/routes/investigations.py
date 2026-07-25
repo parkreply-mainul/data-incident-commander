@@ -75,6 +75,13 @@ def approve(incident_id: str, body: ApprovalRequest, service: Service):
     )
 
 
+@router.post("/{incident_id}/writeback", response_model=InvestigationResponse)
+def writeback(incident_id: str, body: ActorRequest, service: Service):
+    return investigation_response(
+        service.writeback(incident_id, ActorCommand.model_validate(body.model_dump()))
+    )
+
+
 @router.post("/{incident_id}/retry", response_model=InvestigationResponse)
 def retry(incident_id: str, body: RetryRequest, service: Service):
     return investigation_response(

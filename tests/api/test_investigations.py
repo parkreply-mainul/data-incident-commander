@@ -1,14 +1,27 @@
 from __future__ import annotations
 
-from data_incident_commander.application.commands import CreateInvestigation
-from data_incident_commander.application.errors import ConcurrentUpdateConflict
+from data_incident_commander.application.commands import (
+    ActorCommand,
+    ApprovalCommand,
+    CreateInvestigation,
+)
+from data_incident_commander.application.errors import (
+    ConcurrentUpdateConflict,
+    WritebackVerificationFailure,
+)
 from data_incident_commander.application.services import (
     InvestigationService,
     UnconfiguredEvidenceProvider,
 )
+from data_incident_commander.application.protocols import EvidenceProviderReadiness
 from data_incident_commander.api.app import create_app
 from data_incident_commander.config import Settings
-from data_incident_commander.domain.models import IncidentState
+from data_incident_commander.domain.models import (
+    EvidenceRecord,
+    EvidenceType,
+    IncidentState,
+    Reliability,
+)
 from data_incident_commander.repositories.memory import InMemoryIncidentRepository
 from tests.api.conftest import SyncASGIClient
 from tests.application.conftest import (
@@ -140,6 +153,110 @@ def test_investigate_fails_closed_and_preserves_draft(api_context):
     stored = repository.get(incident_id)
     assert stored.workflow.current_state is IncidentState.DRAFT
     assert stored.report is None
+
+
+def test_writeback_verification_failure_is_retryable_and_preserves_approval(
+    api_context,
+):
+    client, service, repository = api_context
+
+    class VerificationWriter(ReportProvider):
+        mutation_calls = 0
+        verification_calls = 0
+
+        @property
+        def readiness(self):
+            return EvidenceProviderReadiness(
+                dependency_name="verification writer",
+                status="ready",
+                configured=True,
+                available=True,
+                supports_datahub=True,
+                    supports_mcp=True,
+                supports_writeback=True,
+            )
+
+        def mutate_writeback(self, record):
+            self.mutation_calls += 1
+
+        def verify_writeback(self, record):
+            self.verification_calls += 1
+            if self.verification_calls == 1:
+                raise WritebackVerificationFailure("internal verification detail")
+            return EvidenceRecord(
+                evidence_id="writeback:test",
+                evidence_type=EvidenceType.WRITEBACK_RECEIPT,
+                source_system="datahub-gms",
+                source_operation="addTag + read-back",
+                observed_at=service.clock.now(),
+                retrieved_at=service.clock.now(),
+                asset_id=record.report.target_asset.external_id,
+                factual_payload={"verified": True},
+                reliability=Reliability.VERIFIED,
+            )
+
+    resolved_urn = (
+        "urn:li:dataset:(urn:li:dataPlatform:bigquery,"
+        "dic_demo.nyc_taxi_trips_raw,PROD)"
+    )
+    draft = service.create_draft(
+        CreateInvestigation(title="NYC Taxi stale", target_asset_id=resolved_urn)
+    )
+    writer = VerificationWriter(
+        build_report(
+            incident_id=draft.incident_id,
+            target_asset_id=resolved_urn,
+            title=draft.title,
+        )
+    )
+    service.evidence_provider = writer
+    service.writeback_provider = writer
+    service.investigate(draft.incident_id)
+    service.submit_for_approval(draft.incident_id, ActorCommand(actor="operator"))
+    awaiting = service.get(draft.incident_id)
+    service.approve(
+        draft.incident_id,
+        ApprovalCommand(
+            actor="reviewer",
+            reason="reviewed",
+            payload_binding_id=service.payload_binding(awaiting),
+        ),
+    )
+
+    response = client.post(
+        f"/api/v1/investigations/{draft.incident_id}/writeback",
+        json={"actor": "operator"},
+    )
+
+    assert response.status_code == 409
+    assert response.json()["error"] == {
+        "code": "WRITEBACK_VERIFICATION_PENDING",
+        "message": (
+            "The DataHub mutation may have succeeded, but read-back verification "
+            "is pending or failed. The incident remains in verification-pending "
+            "state and read-back can be retried without repeating the mutation."
+        ),
+        "retryable": True,
+        "request_id": "request-fixed",
+        "details": {
+            "incident_state": "WRITEBACK_PENDING",
+            "mutation_status": "may_have_succeeded",
+            "verification_status": "pending_or_failed",
+        },
+    }
+    assert (
+        repository.get(draft.incident_id).workflow.current_state
+        is IncidentState.WRITEBACK_PENDING
+    )
+
+    retry = client.post(
+        f"/api/v1/investigations/{draft.incident_id}/writeback",
+        json={"actor": "operator"},
+    )
+    assert retry.status_code == 200
+    assert retry.json()["state"] == "RECORDED"
+    assert writer.mutation_calls == 1
+    assert writer.verification_calls == 2
 
 
 def test_provider_output_mismatch_has_safe_stable_api_error(api_context):

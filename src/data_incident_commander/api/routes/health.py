@@ -30,8 +30,16 @@ def readiness(
 ) -> ReadinessResponse:
     settings = request.app.state.settings
     provider = service.evidence_provider.readiness
+    writeback_provider = (
+        service.writeback_provider or service.evidence_provider
+    ).readiness
     repository_ready = service.repository.ready
-    writeback_ready = False
+    writeback_ready = (
+        writeback_provider.configured
+        and writeback_provider.available
+        and writeback_provider.supports_datahub
+        and writeback_provider.supports_writeback
+    )
 
     def dependency_component(supported: bool, label: str) -> ComponentReadiness:
         if not provider.configured:
@@ -71,8 +79,28 @@ def readiness(
         "datahub": dependency_component(provider.supports_datahub, "DataHub"),
         "mcp": dependency_component(provider.supports_mcp, "DataHub MCP"),
         "writeback": ComponentReadiness(
-            status="disabled",
-            detail="Write-back is disabled in the Sprint 6 application.",
+            status=(
+                "not_configured"
+                if not writeback_provider.configured
+                else "disabled"
+                if not writeback_provider.supports_writeback
+                else "unavailable"
+                if not writeback_provider.available
+                else "ready"
+                if writeback_ready
+                else "unavailable"
+            ),
+            detail=(
+                "Approval-gated DataHub tag write-back is enabled."
+                if writeback_ready
+                else "The configured write-back provider is unavailable."
+                if writeback_provider.configured
+                and writeback_provider.supports_writeback
+                and not writeback_provider.available
+                else "Write-back is not configured."
+                if not writeback_provider.configured
+                else "Write-back is disabled by default."
+            ),
         ),
     }
     full_system_ready = (
@@ -81,7 +109,6 @@ def readiness(
         and provider.available
         and provider.supports_datahub
         and provider.supports_mcp
-        and provider.supports_writeback
         and writeback_ready
     )
     return ReadinessResponse(

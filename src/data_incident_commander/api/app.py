@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+import os
 from uuid import uuid4
 
 from fastapi import FastAPI, Request, Response
@@ -13,6 +14,7 @@ from data_incident_commander.application.services import (
 )
 from data_incident_commander.config import Settings
 from data_incident_commander.repositories.memory import InMemoryIncidentRepository
+from data_incident_commander.integrations.datahub.live import DataHubLiveEvidenceProvider
 
 from .errors import install_error_handlers
 from .routes import health, investigations
@@ -25,9 +27,19 @@ def create_app(
     request_id_provider: Callable[[], str] | None = None,
 ) -> FastAPI:
     resolved_settings = settings or Settings.from_environment()
+    provider = UnconfiguredEvidenceProvider()
+    writeback_provider = None
+    if resolved_settings.datahub_gms_url:
+        writeback_provider = DataHubLiveEvidenceProvider(
+            gms_url=resolved_settings.datahub_gms_url,
+            token=os.getenv(resolved_settings.datahub_token_env),
+            mutation_enabled=resolved_settings.datahub_mutation_enabled,
+            writeback_tag_urn=resolved_settings.datahub_writeback_tag_urn,
+        )
     resolved_service = service or InvestigationService(
         InMemoryIncidentRepository(),
-        UnconfiguredEvidenceProvider(),
+        provider,
+        writeback_provider=writeback_provider,
     )
     next_request_id = request_id_provider or (lambda: str(uuid4()))
 

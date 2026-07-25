@@ -28,9 +28,9 @@ cat >"${SCRIPT_DIR}/common.sh" <<'EOF'
 #!/usr/bin/env bash
 set -Eeuo pipefail
 DIC_DEPLOY_DIR="${DIC_TEST_DEPLOY_DIR}"
-log() { printf '[DataIncident Commander] %s\n' "$*"; }
-warn() { printf '[DataIncident Commander] WARN: %s\n' "$*" >&2; }
-die() { printf '[DataIncident Commander] ERROR: %s\n' "$*" >&2; exit 1; }
+log() { printf '[Data Incident Commander] %s\n' "$*"; }
+warn() { printf '[Data Incident Commander] WARN: %s\n' "$*" >&2; }
+die() { printf '[Data Incident Commander] ERROR: %s\n' "$*" >&2; exit 1; }
 usage_common() { :; }
 load_environment() { source "$1"; }
 require_project_name() { :; }

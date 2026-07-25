@@ -8,7 +8,7 @@ limited blue, green, amber, and red status accents. It is not chat-first and
 does not copy DataHub or any third-party branding.
 
 The CSS-authored product mark combines an original geometric shield/grid shape
-with the DataIncident Commander name. No stock assets, remote fonts, or
+with the Data Incident Commander name. No stock assets, remote fonts, or
 third-party logos are used.
 
 ## Tokens

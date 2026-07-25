@@ -2,7 +2,7 @@
 
 ## Purpose and current status
 
-Tests must prove that DataIncident Commander performs useful work against a
+Tests must prove that Data Incident Commander performs useful work against a
 running DataHub OSS instance through verified DataHub MCP Server operations,
 preserves evidence provenance, makes reproducible calculations, and never
 simulates success. Sprint 5 implements isolated deterministic core tests.

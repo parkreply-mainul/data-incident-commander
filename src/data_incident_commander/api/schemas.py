@@ -79,6 +79,7 @@ class InvestigationResponse(TransportModel):
     state: str
     history: tuple[TransitionResponse, ...]
     payload_binding_id: str | None
+    expected_payload_binding_id: str | None
     last_action_reason: str | None
     report: dict[str, Any] | None
     created_at: datetime

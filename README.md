@@ -1,423 +1,211 @@
-# DataIncident Commander
+# Data Incident Commander
 
-DataIncident Commander is an evidence-grounded incident investigation
-application planned exclusively for the DataHub Agent Hackathon in the
-**Agents That Do Real Work** category. It must use a running **DataHub OSS**
-instance and verified **DataHub MCP Server** operations to investigate real
-metadata at runtime.
+Data Incident Commander (DIC) is an evidence-grounded incident-response agent
+for the DataHub Agent Hackathon, **Agents That Do Real Work** category.
 
-> **Status:** Sprint 7 adds a tested React desktop client for the committed
-> FastAPI boundary. It supports honest readiness, draft creation, listing, and
-> detail views. DataHub/MCP integration, real investigation, durable
-> persistence, and write-back remain unavailable.
+> Runtime truth: the deterministic application, UI, approval workflow, test
+> fixtures, and controlled direct-GMS write/read-back candidate are implemented.
+> The golden demo remains fail-closed until the approved DataHub v1.6.0 VM
+> supplies a runtime-verified standalone MCP version, inventory, and schemas.
 
-## Current project status
+## The 20-second problem
 
-- Sprint 1: complete — repository and documentation foundation.
-- Sprint 2: complete — read-only macOS prerequisite validation.
-- Sprint 3: complete — official DataHub technical baseline documented.
-- Sprint 4: complete through runtime-strategy documentation — Docker and the
-  isolated CLI were validated; local DataHub startup remains blocked and no
-  remote infrastructure exists.
-- Sprint 5: implemented locally for review — strict normalized contracts,
-  deterministic lineage/blast-radius, severity, confidence, approval-state,
-  remediation, and incident-memory logic with synthetic unit tests.
-- Sprint 6: implemented locally for review — strict FastAPI transport models,
-  fail-closed investigation orchestration, stable errors, and in-memory
-  development persistence.
-- Sprint 7: implemented locally for review — accessible React/TypeScript/Vite
-  desktop UI consuming the current API without fabricating unavailable results.
-- Sprint 8A: implemented locally for review — fail-closed remote deployment
-  planning and a typed, library-neutral DataHub MCP adapter boundary. No remote
-  runtime or live integration exists.
+When a data product goes stale, responders manually jump between catalog
+search, lineage, quality, ownership, and downstream consumers. The work is
+slow, conclusions are hard to audit, and a rushed automation can mutate
+metadata before a human understands what it will write.
 
-## Project vision
+## The 20-second solution
 
-Turn a vague data incident signal into a traceable, actionable incident record.
-Responders should be able to inspect the affected assets, lineage, owners,
-freshness and quality signals, blast radius, severity calculation, confidence,
-unknowns, proposed remediation, and history behind every conclusion.
+DIC turns one incident report into a traceable response record. It retrieves
+live DataHub evidence through mandatory MCP operations, calculates bounded
+blast radius, deterministic severity, and evidence confidence, recommends a
+remediation, pauses for explicit human approval, performs one controlled
+DataHub write-back, reads it back as proof, and records verified incident
+memory.
 
-## Problem statement
-
-Incident responders often correlate catalog search, lineage, ownership,
-freshness, quality, and previous incident knowledge manually. That work is slow
-and difficult to audit. A conversational metadata summary is not enough:
-DataIncident Commander must perform bounded DataHub-backed investigation,
-expose its evidence, and support a human-controlled incident lifecycle.
-
-## Real-work guarantee
-
-Runtime evidence used by the product and golden demo must originate from a
-running DataHub OSS instance through verified DataHub MCP operations. A
-fixture-only, chatbot-only, hard-coded, precomputed, or screenshot-only demo
-does not satisfy project acceptance criteria.
-
-The demo must visibly fail or report unavailable dependencies when DataHub or
-the MCP Server is unavailable. Fixtures are permitted only for isolated
-automated tests; they cannot stand in for the live integration demonstration.
-No successful DataHub read, write, or verification may be simulated.
-
-## Primary golden scenario: NYC Taxi planted freshness incident
-
-The golden demo will load a synthetic NYC Taxi metadata scenario into DataHub
-OSS and plant a stale or failed upstream dataset freshness condition. The
-application will:
-
-1. resolve the reported asset against live DataHub metadata;
-2. traverse and display its relevant upstream and downstream lineage;
-3. retrieve freshness or quality evidence and ownership metadata;
-4. identify affected dashboards or other derived assets;
-5. calculate a bounded blast radius from retrieved lineage;
-6. calculate deterministic severity separately from confidence;
-7. distinguish confirmed findings, derived findings, hypotheses, and unknowns;
-8. retrieve relevant previous incident memory;
-9. propose evidence-backed remediation;
-10. present the draft investigation for human review and explicit approval;
-11. perform planned write-back only through a verified, permitted write path;
-12. read the persisted record back and compare it with the approved payload; and
-13. expose the verified record as incident memory for future investigations.
-
-Exact DataHub asset names, metadata fields, incident representation, and graph
-shape are intentionally not invented here. They are subject to validation
-during the DataHub dataset and MCP capability spikes.
-
-## MVP scope and workflow
-
-The planned MVP includes:
-
-- asset resolution with ambiguity handling;
-- bounded upstream lineage traversal;
-- bounded downstream lineage traversal;
-- blast-radius calculation with supporting paths;
-- freshness and quality evidence retrieval;
-- ownership and domain retrieval;
-- a provenance-preserving Evidence Ledger;
-- deterministic, versioned severity;
-- confidence and evidence-coverage calculation;
-- explicit known-versus-unknown separation;
-- evidence-backed remediation;
-- previous incident retrieval and memory;
-- professional desktop investigation UI;
-- human review and explicit approval;
-- planned DataHub write-back, subject to verification; and
-- persisted-payload read-back and equivalence verification.
-
-The human-controlled state flow is:
+## Golden demo: NYC Taxi freshness incident
 
 ```text
-Draft investigation
-  → human review
-  → explicit approval
-  → write-back
-  → read-back
-  → payload verification
-  → recorded incident memory
+Report stale NYC Taxi raw trips
+  → resolve the asset through DataHub MCP
+  → collect metadata, ownership, freshness, quality, and lineage
+  → calculate downstream blast radius
+  → calculate deterministic severity and evidence confidence
+  → recommend rerunning the delayed ingestion
+  → submit the exact report for human review
+  → approve its SHA-256 payload binding
+  → write the incident tag through an approved DataHub operation
+  → read globalTags back and verify the tag
+  → transition to RECORDED and retain in-process incident memory
 ```
 
-The MVP will not modify source data, execute remediation, contact owners, or
-silently select ambiguous assets.
+The small fixture contains three assets:
 
-## Evidence, severity, and confidence
+```text
+NYC Taxi Trips Raw
+  → NYC Taxi Daily Metrics
+    → NYC Taxi Operations Dashboard
+```
 
-The Evidence Ledger will preserve evidence identifiers, asset identifiers,
-sources, observation and retrieval times, raw-response references when safe,
-and conflicts or warnings. Confirmed findings require evidence references.
-Derived findings must identify their evidence and deterministic calculation.
-Hypotheses and unknowns must remain visibly separate.
+The raw asset carries a planted stale freshness signal. The derived model and
+dashboard make impact visible without turning the demo into a data-loading
+project.
 
-Severity measures incident impact and urgency through deterministic, versioned
-rules. Confidence is a separate value from **0.0 to 1.0** representing evidence
-coverage and consistency—not model certainty. Missing or conflicting evidence
-lowers confidence. Low confidence must prevent overconfident root-cause claims,
-even when deterministic severity is high. The UI must display confidence,
-coverage, and unknowns.
+## Why DataHub is essential
 
-## Architecture overview
+DataHub is the live system of record for asset identity, ownership, lineage,
+freshness/quality context, and the final metadata tag. Without DataHub, DIC has
+no evidence and refuses to invent a successful investigation. The demo is not
+a chatbot over fixtures: its acceptance contract requires runtime evidence
+from the pinned **DataHub OSS v1.6.0** instance.
 
-The planned application has three major parts:
+## Why MCP is mandatory
 
-- a Python backend for investigation orchestration, typed contracts, evidence,
-  severity, memory, and the HTTP API;
-- a React desktop UI for investigation, lineage, blast radius, approval,
-  persistence verification, and incident history; and
-- a verified integration boundary to DataHub OSS through the DataHub MCP
-  Server, with mutation handled only as described below.
+The read/investigation path must use a runtime-verified standalone DataHub MCP
+Server. The existing `DataHubMcpEvidenceProvider` and typed normalization
+boundary fail closed until the actual server version, tool inventory, schemas,
+and read-only capabilities are observed. Tool names or response fields are
+never guessed.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for component and trust
-boundaries.
+Direct GMS is secondary. It is currently a minimal candidate for fixture
+ingestion and the controlled tag write/read-back path; it does not replace MCP
+as the evidence origin.
 
-## Intended technology stack
+## Safety model
 
-### Backend
+- **Fail closed:** missing, ambiguous, malformed, unavailable, or unverified
+  evidence never becomes a successful investigation.
+- **Deterministic decisions:** versioned rules calculate lineage traversal,
+  blast radius, severity, and confidence independently of an LLM.
+- **Evidence ledger:** every confirmed finding and recommendation refers to
+  typed evidence with source operation and timestamps.
+- **Human-controlled mutation:** write-back is disabled by default and cannot
+  run before `INVESTIGATED → AWAITING_APPROVAL → APPROVED`.
+- **Approval binding:** the reviewer approves the SHA-256 binding of the exact
+  normalized report.
+- **Read-back proof:** `RECORDED` is reached only after DataHub returns the
+  expected tag; mismatch leaves the incident `APPROVED`.
+- **No source-data remediation:** DIC recommends operational action but does
+  not alter NYC Taxi data, run pipelines, or contact owners.
 
-- Python
-- FastAPI
-- Pydantic
-- pytest
+## Concise architecture
 
-### Frontend
+```text
+React/Vite UI
+  → FastAPI application service
+    → typed incident state machine + in-memory repository
+    → deterministic lineage / blast radius / severity / confidence engines
+    → DataHubMcpEvidenceProvider (mandatory read evidence)
+      → runtime-verified DataHub MCP Server
+        → DataHub OSS v1.6.0
+    → approval-gated DataHub mutation
+      → independent read-back verification
+```
 
-- React
-- TypeScript
-- Vite
+The backend owns calculations and workflow state. DataHub owns catalog
+evidence and persisted metadata. MCP is the mandatory read boundary. See
+[Architecture](docs/ARCHITECTURE.md) and
+[MCP adapter architecture](docs/MCP_ADAPTER_ARCHITECTURE.md).
 
-### Integration
+## Local development and validation
 
-- DataHub OSS
-- DataHub MCP Server
-
-The backend requirements pin Pydantic 2.11.10, pytest 8.4.2, FastAPI 0.139.2,
-Uvicorn 0.51.0, and HTTPX 0.28.1. Frontend direct dependencies are exactly
-pinned in `frontend/package.json` and locked by npm. No DataHub SDK, MCP
-package, LLM SDK, database, UI framework, or graph library is installed.
-
-## Local API development
+Prerequisites: Python 3.11+, Node/npm, and repository-local dependencies.
 
 ```bash
+make check
 make setup
 make test
-make api
+make integration-test
+make frontend-test
+make frontend-build
+make remote-check
 ```
 
-`make setup` creates or reuses the repository-local `.venv`. `make api` starts
-a development server at `http://127.0.0.1:8000` by default; override the port
-with `make api API_PORT=8080`. It does not enable reload and is not a production
-deployment command.
-
-```bash
-curl http://127.0.0.1:8000/health
-
-curl -X POST http://127.0.0.1:8000/api/v1/investigations \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"Investigate an asset","target_asset_id":"asset:unverified"}'
-```
-
-Draft creation is functional, but DataHub/MCP integration is not yet
-available. Calling the investigation endpoint returns a visible dependency
-error and does not invent evidence or mark the draft investigated.
-Investigation also performs a DRAFT-only preflight before any provider call.
-Stored records use optimistic revisions; conflicting state changes fail
-visibly and require the caller to re-read. Readiness reports the injected
-evidence provider, DataHub, MCP, repository, and disabled write-back separately.
-
-## Local frontend development
-
-Use two terminals after installing the documented Python and Node
-prerequisites:
+Run the fail-closed local application in two terminals:
 
 ```bash
 # Terminal 1
-make setup
-make api
+make api API_HOST=127.0.0.1 API_PORT=8000
 
 # Terminal 2
-make frontend-setup
-make frontend
+make frontend FRONTEND_PORT=5173
 ```
 
-Open `http://127.0.0.1:5173`; the API remains at
-`http://127.0.0.1:8000`. Vite proxies local API requests to FastAPI. Override
-ports with `API_PORT` and `FRONTEND_PORT`; override the proxy target with
-`VITE_API_PROXY_TARGET`.
+Open `http://127.0.0.1:5173`. Draft intake works locally. Investigation remains
+unavailable unless the required DataHub and verified MCP provider are connected.
+
+## Approved-VM demo commands
+
+These commands are documentation only. Do not run them until the VM, token,
+MCP release, and mutation checkpoint have been separately approved.
 
 ```bash
-make test
-make frontend-test
-make frontend-build
-```
+cd /opt/data-incident-commander
 
-The client can create and inspect drafts and display actual readiness. The
-Investigate action currently renders `DEPENDENCY_UNAVAILABLE`, leaves the
-incident in `DRAFT`, and produces no evidence. This is intentional: DataHub and
-MCP are not connected. Future evidence, lineage, severity, ownership,
-remediation, memory, and write-back surfaces are visibly disabled.
+export DIC_GMS_URL=http://127.0.0.1:8080
+export DIC_GMS_TOKEN_ENV=DATAHUB_GMS_TOKEN
+export DATAHUB_GMS_TOKEN='<runtime-secret>'
 
-No screenshots are committed yet.
+# Load only the small public demo metadata after approval.
+datahub ingest -c demo/nyc_taxi_recipe.yml
 
-## Sprint 8A remote and integration checks
-
-```bash
+# Verify the pinned DataHub runtime and deployment artifacts.
+make remote-verify REMOTE_ENV=/secure/path/dic-remote.env
 make integration-test
-make remote-check
-make remote-plan
+
+# Terminal 1: start the API after the verified MCP provider is configured.
+make api API_HOST=127.0.0.1 API_PORT=8000
+
+# Terminal 2: start the UI.
+make frontend FRONTEND_PORT=5173
 ```
 
-`integration-test` uses controlled contract doubles and never claims live
-DataHub success. `remote-check` validates deployment artifacts locally;
-`remote-plan` prints intended future actions. Remote execution targets are
-fail-closed without an approved environment and explicit gates.
-
-No infrastructure has been provisioned, no DataHub runtime or image has been
-started or pulled, no MCP package has been installed, and mutation remains
-disabled. See [the Sprint 8 runtime checkpoint](docs/SPRINT_8_RUNTIME_CHECKPOINT.md).
-
-## Professional desktop UI
-
-The dedicated desktop UI phase will provide:
-
-- investigation input;
-- live investigation timeline;
-- severity and root-cause summary;
-- visual upstream/downstream lineage graph;
-- blast-radius view;
-- Evidence Ledger;
-- confidence and known/unknown panel;
-- owners and domains;
-- remediation plan;
-- human approval controls;
-- write-back/read-back status;
-- previous incident memory;
-- recent incidents; and
-- empty, loading, partial, error, disconnected, success, and resolved states.
-
-Real investigation functionality comes before visual polish. Professional visual
-quality, usable information hierarchy, accessibility, and complete operational
-states are nevertheless required project phases and submission criteria.
-
-## Planned DataHub write path
-
-Write-back is planned, not confirmed. It is subject to verification of supported
-DataHub MCP mutation capabilities against official documentation and the actual
-running tool inventory.
-
-The project will:
-
-1. prefer a verified MCP mutation tool;
-2. if MCP exposes no appropriate mutation, document and use an officially
-   supported DataHub write API or SDK only if hackathon rules permit it;
-3. continue to use the required approved DataHub technology for the read and
-   investigation path;
-4. never simulate successful write-back; and
-5. disclose the actual verified write path in the final architecture.
-
-## One-command experience
-
-The eventual `make demo` command will orchestrate modular scripts to check
-prerequisites, prepare the complete demo environment, validate health, load the
-planted NYC Taxi scenario, start MCP, backend, and frontend services, run smoke
-validation, and print usable URLs.
-
-Planned scripts, not implemented in Sprint 1B:
-
-```text
-scripts/check_prerequisites.sh
-scripts/setup_environment.sh
-scripts/start_datahub.sh
-scripts/load_sample_data.sh
-scripts/start_mcp.sh
-scripts/start_backend.sh
-scripts/start_frontend.sh
-scripts/run_smoke_test.sh
-scripts/demo_check.sh
-scripts/submission_check.sh
-scripts/stop_all.sh
-```
-
-All current Makefile targets other than `check` are safe placeholders that
-print messages only.
-
-Environment validation precedes installation. On macOS, run the implemented
-read-only prerequisite check:
+For the separately approved mutation rehearsal, stop the API process, enable
+the narrow mutation configuration in the same shell, and restart it:
 
 ```bash
-make check
+export DIC_DATAHUB_MUTATION_ENABLED=true
+export DIC_DATAHUB_WRITEBACK_TAG_URN=urn:li:tag:dic-incident-recorded
+make api API_HOST=127.0.0.1 API_PORT=8000
 ```
 
-The check reports host tools and generic candidate-port conflicts without
-installing or starting anything. A passing result does not establish DataHub
-compatibility; official requirements and an actual startup must still be
-verified. See
-[docs/ENVIRONMENT_VALIDATION.md](docs/ENVIRONMENT_VALIDATION.md).
+Expected effect: only the approved incident tag is associated with the target
+demo dataset. Rollback: remove `dic-incident-recorded` from that dataset and
+restart the API without `DIC_DATAHUB_MUTATION_ENABLED=true`.
 
-## Repository structure
+## Judge walkthrough checklist
 
-```text
-.
-├── PROJECT_CHARTER.md
-├── README.md
-├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── IMPLEMENTATION_PLAN.md
-│   └── TEST_STRATEGY.md
-├── examples/                         # Future sample incident inputs
-├── scripts/                          # Future modular automation scripts
-├── src/
-│   └── data_incident_commander/
-│       ├── agent/                    # Future orchestration
-│       ├── domain/                   # Future evidence and decision contracts
-│       └── integrations/datahub/     # Future verified DataHub integration
-└── tests/
-    ├── fixtures/                     # Isolated-test fixtures only
-    ├── integration/                  # Future real integration tests
-    └── unit/                         # Future deterministic tests
-```
+- [ ] DataHub reports v1.6.0 and the MCP inventory is visibly verified.
+- [ ] Submit the NYC Taxi raw-dataset freshness incident.
+- [ ] Show live asset, ownership, freshness, quality, and lineage evidence.
+- [ ] Explain direct and transitive blast radius.
+- [ ] Show deterministic severity separately from evidence confidence.
+- [ ] Read the evidence-backed remediation.
+- [ ] Demonstrate that write-back is unavailable before human approval.
+- [ ] Submit and approve the exact payload binding.
+- [ ] Perform the single controlled tag write.
+- [ ] Show the read-back receipt and `RECORDED` state.
+- [ ] Show the verified in-process incident-memory ending.
+- [ ] Demonstrate fail-closed behavior if DataHub or MCP is unavailable.
 
-Empty directories remain intentionally untracked; no `.gitkeep` files are
-needed for Sprint 1B.
+## Submission material
 
-## Development principles
-
-- Runtime evidence before conclusions.
-- Provenance and timestamps by default.
-- Deterministic severity, separate from evidence confidence.
-- Visible knowns, unknowns, conflicts, and partial results.
-- Bounded lineage traversal and allowlisted tool operations.
-- Human approval before any incident mutation.
-- Read-back equivalence verification after persistence.
-- No simulated integration success.
-- Synthetic, public-safe demo metadata only.
-- Real functionality before visual polish, with professional UI quality still
-  required for submission.
-
-## Project independence
-
-This repository is completely independent:
-
-- Do not access ParkReply code.
-- Do not access SafeRelay code.
-- Do not access PIC code.
-- Do not copy, import, adapt, reference, or use any of them as hidden
-  dependencies, implementation sources, fixtures, or demo data.
-
-Only material created for this repository or appropriately licensed public
-dependencies may be used.
-
-## Development commands
-
-`make setup` detects Python 3.11 or newer, creates the ignored repository-local
-`.venv` when absent, and installs the exact direct pins from
-`requirements-backend.txt`. It never installs globally and is safe to rerun.
-`make test` runs setup first and then executes the Sprint 5 unit suite through
-that environment.
-
-```bash
-make check
-make setup
-make test
-```
-
-The remaining operational commands are placeholders:
-
-```bash
-make start
-make seed
-make smoke
-make demo
-make demo-check
-make submission-check
-make stop
-```
-
-## Documentation
-
+- [Hackathon submission](docs/HACKATHON_SUBMISSION.md)
+- [3–4 minute demo script](docs/DEMO_SCRIPT.md)
+- [Screenshot plan](docs/SCREENSHOT_PLAN.md)
 - [Project charter](PROJECT_CHARTER.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Implementation plan](docs/IMPLEMENTATION_PLAN.md)
 - [Test strategy](docs/TEST_STRATEGY.md)
+
+## Scope and independence
+
+DIC does not execute remediation, mutate source data, add a database, introduce
+a general agent platform, or silently choose ambiguous assets. This repository
+is standalone: it does not copy, import, adapt, reference, or use another
+project as a hidden dependency, implementation source, fixture, or demo-data
+source.
 
 ## License
 
-DataIncident Commander is intended for public release under the
-[Apache License 2.0](LICENSE). Credentials, private operational metadata, and
-incompatibly licensed material must never be committed.
+Licensed under the [Apache License 2.0](LICENSE). Secrets, private operational
+metadata, and generated runtime state must not be committed.

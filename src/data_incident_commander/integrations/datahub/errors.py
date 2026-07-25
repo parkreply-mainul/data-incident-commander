@@ -1,6 +1,9 @@
 """Safe DataHub MCP integration errors."""
 
-from data_incident_commander.application.errors import DependencyUnavailable
+from data_incident_commander.application.errors import (
+    DependencyUnavailable,
+    WritebackVerificationFailure,
+)
 
 
 class DataHubIntegrationError(Exception):

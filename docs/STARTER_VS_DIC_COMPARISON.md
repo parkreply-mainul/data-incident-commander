@@ -1,4 +1,4 @@
-# Official Starter versus DataIncident Commander
+# Official Starter versus Data Incident Commander
 
 ## Decision labels
 
@@ -11,7 +11,7 @@
 
 ## Structured comparison
 
-| Area | Official starter | DataIncident Commander | Decision |
+| Area | Official starter | Data Incident Commander | Decision |
 |---|---|---|---|
 | Product shape | One Python script plus a prompt/goal | Domain core, FastAPI application, React desktop UI, integration protocols | **Keep our implementation** |
 | DataHub connection | `DataHubClient.from_env()` direct to GMS | Library-neutral MCP client protocol and normalized adapter boundary | **Adapt** direct-client construction only as a fallback adapter |
@@ -74,7 +74,7 @@ The [official rules](https://datahub.devpost.com/rules) allow the
 Context Kit, and require action plus a result written back. They also permit
 starter templates when disclosed and properly licensed.
 
-DataIncident Commander's own charter is stricter: its golden-demo evidence must
+Data Incident Commander's own charter is stricter: its golden-demo evidence must
 come through verified DataHub MCP operations. The starter therefore informs a
 fallback but does not justify silently replacing MCP. Any such change would
 require an explicit architecture and acceptance-criteria decision.

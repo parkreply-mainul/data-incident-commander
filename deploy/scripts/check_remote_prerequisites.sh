@@ -76,7 +76,7 @@ else
 fi
 if command -v timedatectl >/dev/null 2>&1; then
   timedatectl show -p NTPSynchronized --value 2>/dev/null |
-    sed 's/^/[DataIncident Commander] INFO: NTP synchronized: /'
+    sed 's/^/[Data Incident Commander] INFO: NTP synchronized: /'
 else
   warn "WARN: timedatectl unavailable; time synchronization needs manual verification."
 fi

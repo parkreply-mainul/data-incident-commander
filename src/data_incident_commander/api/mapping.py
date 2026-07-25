@@ -6,6 +6,7 @@ from data_incident_commander.application.records import InvestigationRecord
 from data_incident_commander.domain.base import thaw_mapping
 
 from .schemas import InvestigationResponse, TransitionResponse
+from data_incident_commander.application.services import InvestigationService
 
 
 def investigation_response(record: InvestigationRecord) -> InvestigationResponse:
@@ -34,6 +35,7 @@ def investigation_response(record: InvestigationRecord) -> InvestigationResponse
         state=record.workflow.current_state.value,
         history=history,
         payload_binding_id=record.payload_binding_id,
+        expected_payload_binding_id=InvestigationService.payload_binding(record),
         last_action_reason=record.last_action_reason,
         report=None if record.report is None else record.report.model_dump(mode="json"),
         created_at=record.created_at,
