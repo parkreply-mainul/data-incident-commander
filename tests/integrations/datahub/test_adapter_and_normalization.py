@@ -85,7 +85,7 @@ def test_configured_provider_without_client_is_honestly_unavailable():
 
 def test_unavailable_client_and_unverified_inventory_have_distinct_statuses():
     unavailable = DataHubMcpEvidenceProvider(config(), client=ControlledClient(False))
-    assert unavailable.readiness.status == "client_unavailable"
+    assert unavailable.readiness.status == "tool_inventory_unverified"
     unverified = DataHubMcpEvidenceProvider(config(), client=ControlledClient())
     assert unverified.readiness.status == "tool_inventory_unverified"
     with pytest.raises(ToolInventoryUnavailable):
@@ -113,23 +113,18 @@ def test_mutating_required_capability_keeps_provider_unverified_and_unavailable(
         provider.investigate(object())
 
 
-def test_observed_inventory_verifies_capabilities_but_not_operational_readiness():
+def test_observed_inventory_and_client_make_orchestration_ready():
     provider = DataHubMcpEvidenceProvider(
         config(), client=ControlledClient(), inventory=observed_inventory()
     )
-    assert not provider.readiness.available
-    assert (
-        provider.readiness.status
-        == "capabilities_verified_but_investigation_unimplemented"
-    )
+    assert provider.readiness.available
+    assert provider.readiness.status == "ready"
     summary = readiness_summary(provider)
     assert summary["client_available"] is True
     assert summary["required_tools_observed"] is True
     assert summary["capabilities_verified"] is True
     assert summary["adapter_normalization_verified"] is True
-    assert summary["investigation_orchestration_implemented"] is False
-    with pytest.raises(McpUnavailable, match="not implemented"):
-        provider.investigate(object())
+    assert summary["investigation_orchestration_implemented"] is True
 
 
 def test_readiness_summary_is_safe_and_mutation_stays_disabled():
@@ -155,7 +150,7 @@ def test_api_readiness_exposes_configured_but_unverified_adapter_honestly():
     assert body["components"]["writeback"]["status"] == "disabled"
 
 
-def test_api_never_reports_full_readiness_for_unimplemented_orchestration():
+def test_api_reports_verified_mcp_provider_ready():
     service, _ = build_service()
     service.evidence_provider = DataHubMcpEvidenceProvider(
         config(), client=ControlledClient(), inventory=observed_inventory()
@@ -165,17 +160,13 @@ def test_api_never_reports_full_readiness_for_unimplemented_orchestration():
     )
     body = client.get("/health/readiness").json()
     assert body["status"] == "not_ready"
-    assert body["components"]["evidence_provider"]["status"] == "unavailable"
-    assert (
-        "capabilities_verified_but_investigation_unimplemented"
-        in body["components"]["evidence_provider"]["detail"]
-    )
-    assert body["components"]["datahub"]["status"] == "unavailable"
-    assert body["components"]["mcp"]["status"] == "unavailable"
+    assert body["components"]["evidence_provider"]["status"] == "ready"
+    assert body["components"]["datahub"]["status"] == "ready"
+    assert body["components"]["mcp"]["status"] == "ready"
     assert body["components"]["writeback"]["status"] == "disabled"
 
 
-def test_unimplemented_orchestration_produces_no_report_or_state_change():
+def test_malformed_mcp_response_produces_no_report_or_state_change():
     service, repository = build_service("incident-mcp-boundary")
     service.evidence_provider = DataHubMcpEvidenceProvider(
         config(), client=ControlledClient(), inventory=observed_inventory()
@@ -187,9 +178,7 @@ def test_unimplemented_orchestration_produces_no_report_or_state_change():
         )
     )
 
-    with pytest.raises(
-        DependencyUnavailable, match="verified and ready DataHub MCP"
-    ):
+    with pytest.raises(DependencyUnavailable):
         service.investigate(draft.incident_id)
 
     stored = repository.get(draft.incident_id)

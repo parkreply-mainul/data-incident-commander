@@ -36,6 +36,18 @@ def test_configuration_is_strict_and_side_effect_free():
     assert value.public_configuration()["gms_host_class"] == "private"
 
 
+def test_stdio_command_pins_exact_server_package_version():
+    value = config(mcp_server_version="0.6.0")
+
+    assert value.stdio_command == (
+        "uvx",
+        "mcp-server-datahub==0.6.0",
+        "--transport",
+        "stdio",
+    )
+    assert "latest" not in " ".join(value.stdio_command)
+
+
 @pytest.mark.parametrize(
     "url",
     [

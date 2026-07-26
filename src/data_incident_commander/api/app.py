@@ -13,8 +13,18 @@ from data_incident_commander.application.services import (
     UnconfiguredEvidenceProvider,
 )
 from data_incident_commander.config import Settings
-from data_incident_commander.repositories.memory import InMemoryIncidentRepository
+from data_incident_commander.integrations.datahub.adapter import (
+    DataHubMcpEvidenceProvider,
+)
+from data_incident_commander.integrations.datahub.config import (
+    DataHubMcpConfig,
+    VERIFIED_MCP_SERVER_VERSION,
+)
 from data_incident_commander.integrations.datahub.live import DataHubLiveEvidenceProvider
+from data_incident_commander.integrations.datahub.stdio_client import (
+    DataHubMcpStdioClient,
+)
+from data_incident_commander.repositories.memory import InMemoryIncidentRepository
 
 from .errors import install_error_handlers
 from .routes import health, investigations
@@ -28,6 +38,34 @@ def create_app(
 ) -> FastAPI:
     resolved_settings = settings or Settings.from_environment()
     provider = UnconfiguredEvidenceProvider()
+    if (
+        resolved_settings.datahub_gms_url
+        and resolved_settings.datahub_mcp_mode
+        and resolved_settings.datahub_mcp_server_version
+    ):
+        try:
+            mcp_config = DataHubMcpConfig(
+                gms_url=resolved_settings.datahub_gms_url,
+                token_env_var=resolved_settings.datahub_token_env,
+                mode=resolved_settings.datahub_mcp_mode,
+                mcp_server_version=resolved_settings.datahub_mcp_server_version,
+                request_timeout_seconds=resolved_settings.datahub_mcp_timeout_seconds,
+                mutation_enabled=False,
+                documents_enabled=resolved_settings.datahub_mcp_documents_enabled,
+                user_tools_enabled=resolved_settings.datahub_mcp_user_tools_enabled,
+                environment_name=resolved_settings.environment,
+            )
+            if (
+                mcp_config.mcp_server_version == VERIFIED_MCP_SERVER_VERSION
+                and not mcp_config.documents_enabled
+                and not mcp_config.user_tools_enabled
+            ):
+                provider = DataHubMcpEvidenceProvider(
+                    mcp_config,
+                    client=DataHubMcpStdioClient(mcp_config),
+                )
+        except (TypeError, ValueError):
+            pass
     writeback_provider = None
     if resolved_settings.datahub_gms_url:
         writeback_provider = DataHubLiveEvidenceProvider(

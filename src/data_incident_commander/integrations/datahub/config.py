@@ -22,6 +22,8 @@ _RFC1918_NETWORKS = tuple(
 )
 _IPV6_ULA = ipaddress.ip_network("fc00::/7")
 _LOCAL_GMS_HOSTNAMES = frozenset({"localhost", "datahub-gms", "datahub"})
+VERIFIED_MCP_SERVER_VERSION = "0.6.0"
+MCP_SERVER_PACKAGE = "mcp-server-datahub"
 
 
 def _private_or_loopback(host: str) -> bool:
@@ -146,6 +148,17 @@ class DataHubMcpConfig(StrictModel):
 
         source = os.environ if environment is None else environment
         return source.get(self.token_env_var)
+
+    @property
+    def stdio_command(self) -> tuple[str, ...]:
+        """Return the exact, immutable server invocation without secret values."""
+
+        return (
+            self.mcp_command[0],
+            f"{MCP_SERVER_PACKAGE}=={self.mcp_server_version}",
+            "--transport",
+            "stdio",
+        )
 
     def public_configuration(self) -> dict[str, object]:
         return {

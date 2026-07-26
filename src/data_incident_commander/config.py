@@ -16,6 +16,11 @@ class Settings:
     log_level: str = "info"
     datahub_gms_url: str | None = None
     datahub_token_env: str = "DATAHUB_GMS_TOKEN"
+    datahub_mcp_mode: str | None = None
+    datahub_mcp_server_version: str | None = None
+    datahub_mcp_timeout_seconds: float = 30.0
+    datahub_mcp_documents_enabled: bool = False
+    datahub_mcp_user_tools_enabled: bool = False
     datahub_mutation_enabled: bool = False
     datahub_writeback_tag_urn: str = "urn:li:tag:dic-incident-recorded"
 
@@ -30,6 +35,22 @@ class Settings:
             log_level=os.getenv("DIC_LOG_LEVEL", cls.log_level),
             datahub_gms_url=os.getenv("DIC_GMS_URL") or None,
             datahub_token_env=os.getenv("DIC_GMS_TOKEN_ENV", cls.datahub_token_env),
+            datahub_mcp_mode=os.getenv("DIC_MCP_MODE") or None,
+            datahub_mcp_server_version=os.getenv("DIC_MCP_SERVER_VERSION") or None,
+            datahub_mcp_timeout_seconds=float(
+                os.getenv(
+                    "DIC_MCP_TIMEOUT_SECONDS",
+                    str(cls.datahub_mcp_timeout_seconds),
+                )
+            ),
+            datahub_mcp_documents_enabled=os.getenv(
+                "DIC_MCP_DOCUMENTS_ENABLED", "false"
+            ).lower()
+            == "true",
+            datahub_mcp_user_tools_enabled=os.getenv(
+                "DIC_MCP_USER_TOOLS_ENABLED", "false"
+            ).lower()
+            == "true",
             datahub_mutation_enabled=os.getenv("DIC_DATAHUB_MUTATION_ENABLED", "false").lower()
             == "true",
             datahub_writeback_tag_urn=os.getenv(
