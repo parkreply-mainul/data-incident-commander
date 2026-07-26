@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="${DIC_VM_PROJECT_DIR:-/opt/data-incident-commander}"
+PROJECT_DIR="${DIC_VM_PROJECT_DIR:-/home/mainulislam/data-incident-commander}"
 ENV_FILE="${DIC_DEMO_ENV_FILE:-${PROJECT_DIR}/.env}"
 ACTION="${1:-}"
 if [[ -f "${ENV_FILE}" ]]; then

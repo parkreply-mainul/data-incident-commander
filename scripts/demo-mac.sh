@@ -4,7 +4,7 @@ set -euo pipefail
 VM_INSTANCE="instance-20260724-222331"
 GCP_PROJECT="dataincidentcommander"
 GCP_ZONE="europe-west9-a"
-VM_PROJECT_DIR="/opt/data-incident-commander"
+VM_PROJECT_DIR="/home/mainulislam/data-incident-commander"
 FRONTEND_URL="http://127.0.0.1:5173"
 TUNNEL_PID=""
 FRONTEND_PID=""

@@ -126,12 +126,12 @@ demo-start:
 demo-status:
 	@gcloud compute ssh instance-20260724-222331 \
 		--project dataincidentcommander --zone europe-west9-a \
-		--command 'cd /opt/data-incident-commander && ./scripts/demo-vm.sh status'
+		--command 'cd /home/mainulislam/data-incident-commander && ./scripts/demo-vm.sh status'
 
 demo-stop:
 	@gcloud compute ssh instance-20260724-222331 \
 		--project dataincidentcommander --zone europe-west9-a \
-		--command 'cd /opt/data-incident-commander && ./scripts/demo-vm.sh stop'
+		--command 'cd /home/mainulislam/data-incident-commander && ./scripts/demo-vm.sh stop'
 
 submission-check:
 	@echo "Placeholder: submission-check is not implemented yet."

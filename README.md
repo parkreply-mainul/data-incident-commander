@@ -144,7 +144,7 @@ have not already been prepared. On the Mac:
 npm --prefix frontend ci
 gcloud compute ssh instance-20260724-222331 \
   --project dataincidentcommander --zone europe-west9-a \
-  --command 'cd /opt/data-incident-commander && make setup && chmod 600 .env'
+  --command 'cd /home/mainulislam/data-incident-commander && make setup && chmod 600 .env'
 ```
 
 The VM `.env` must already contain the verified MCP environment and runtime
@@ -176,7 +176,7 @@ These commands are documentation only. Do not run them until the VM, token,
 MCP release, and mutation checkpoint have been separately approved.
 
 ```bash
-cd /opt/data-incident-commander
+cd /home/mainulislam/data-incident-commander
 
 export DIC_GMS_URL=http://127.0.0.1:8080
 export DIC_GMS_TOKEN_ENV=DATAHUB_GMS_TOKEN
