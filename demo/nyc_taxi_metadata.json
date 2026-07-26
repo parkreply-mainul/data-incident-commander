@@ -1,44 +1,51 @@
 [
   {
+    "changeType": "UPSERT",
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_trips_raw,PROD)",
     "aspectName": "datasetProperties",
-    "aspect": {"name": "NYC Taxi Trips Raw", "description": "Demo asset with a planted stale freshness signal.", "customProperties": {"dic_scenario": "nyc_taxi_freshness", "dic_freshness_status": "stale", "dic_freshness_observed_at": "2026-07-24T09:00:00Z", "dic_quality_status": "passing", "dic_asset_type": "dataset", "dic_criticality": "high"}}
+    "aspect": {"value": "{\"name\":\"NYC Taxi Trips Raw\",\"description\":\"Demo asset with a planted stale freshness signal.\",\"customProperties\":{\"dic_scenario\":\"nyc_taxi_freshness\",\"dic_freshness_status\":\"stale\",\"dic_freshness_observed_at\":\"2026-07-24T09:00:00Z\",\"dic_quality_status\":\"passing\",\"dic_asset_type\":\"dataset\",\"dic_criticality\":\"high\"}}", "contentType": "application/json"}
   },
   {
+    "changeType": "UPSERT",
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_daily_metrics,PROD)",
     "aspectName": "datasetProperties",
-    "aspect": {"name": "NYC Taxi Daily Metrics", "customProperties": {"dic_scenario": "nyc_taxi_freshness", "dic_quality_status": "passing", "dic_asset_type": "model", "dic_criticality": "high"}}
+    "aspect": {"value": "{\"name\":\"NYC Taxi Daily Metrics\",\"customProperties\":{\"dic_scenario\":\"nyc_taxi_freshness\",\"dic_quality_status\":\"passing\",\"dic_asset_type\":\"model\",\"dic_criticality\":\"high\"}}", "contentType": "application/json"}
   },
   {
+    "changeType": "UPSERT",
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_ops_dashboard,PROD)",
     "aspectName": "datasetProperties",
-    "aspect": {"name": "NYC Taxi Operations Dashboard", "customProperties": {"dic_scenario": "nyc_taxi_freshness", "dic_quality_status": "passing", "dic_asset_type": "dashboard", "dic_criticality": "critical"}}
+    "aspect": {"value": "{\"name\":\"NYC Taxi Operations Dashboard\",\"customProperties\":{\"dic_scenario\":\"nyc_taxi_freshness\",\"dic_quality_status\":\"passing\",\"dic_asset_type\":\"dashboard\",\"dic_criticality\":\"critical\"}}", "contentType": "application/json"}
   },
   {
+    "changeType": "UPSERT",
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_trips_raw,PROD)",
     "aspectName": "ownership",
-    "aspect": {"owners": [{"owner": "urn:li:corpGroup:data-platform", "type": "TECHNICAL_OWNER", "source": {"type": "SERVICE"}}], "lastModified": {"time": 0, "actor": "urn:li:corpuser:datahub"}}
+    "aspect": {"value": "{\"owners\":[{\"owner\":\"urn:li:corpGroup:data-platform\",\"type\":\"TECHNICAL_OWNER\",\"source\":{\"type\":\"SERVICE\"}}],\"lastModified\":{\"time\":0,\"actor\":\"urn:li:corpuser:datahub\"}}", "contentType": "application/json"}
   },
   {
+    "changeType": "UPSERT",
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_daily_metrics,PROD)",
     "aspectName": "upstreamLineage",
-    "aspect": {"upstreams": [{"dataset": "urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_trips_raw,PROD)", "type": "TRANSFORMED"}]}
+    "aspect": {"value": "{\"upstreams\":[{\"dataset\":\"urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_trips_raw,PROD)\",\"type\":\"TRANSFORMED\"}]}", "contentType": "application/json"}
   },
   {
+    "changeType": "UPSERT",
     "entityType": "dataset",
     "entityUrn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_ops_dashboard,PROD)",
     "aspectName": "upstreamLineage",
-    "aspect": {"upstreams": [{"dataset": "urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_daily_metrics,PROD)", "type": "TRANSFORMED"}]}
+    "aspect": {"value": "{\"upstreams\":[{\"dataset\":\"urn:li:dataset:(urn:li:dataPlatform:bigquery,dic_demo.nyc_taxi_daily_metrics,PROD)\",\"type\":\"TRANSFORMED\"}]}", "contentType": "application/json"}
   },
   {
+    "changeType": "UPSERT",
     "entityType": "tag",
     "entityUrn": "urn:li:tag:dic-incident-recorded",
     "aspectName": "tagProperties",
-    "aspect": {"name": "dic-incident-recorded", "description": "Approval-gated Data Incident Commander write-back proof", "colorHex": "#D97706"}
+    "aspect": {"value": "{\"name\":\"dic-incident-recorded\",\"description\":\"Approval-gated Data Incident Commander write-back proof\",\"colorHex\":\"#D97706\"}", "contentType": "application/json"}
   }
 ]

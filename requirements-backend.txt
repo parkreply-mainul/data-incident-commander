@@ -1,5 +1,6 @@
 pydantic==2.11.10
 pytest==8.4.2
+acryl-datahub==1.6.0
 fastapi==0.139.2
 uvicorn==0.51.0
 httpx==0.28.1
