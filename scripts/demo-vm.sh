@@ -12,7 +12,8 @@ if [[ -f "${ENV_FILE}" ]]; then
   source "${ENV_FILE}"
   set +a
 fi
-COMPOSE_FILE="${DIC_DATAHUB_COMPOSE_FILE:-/home/mainulis599/.datahub/quickstart/docker-compose.yml}"
+COMPOSE_FILE="/home/mainulis599/.datahub/quickstart/docker-compose.yml"
+SECRETS_FILE="/home/mainulis599/.datahub/quickstart/.local-secrets.env"
 RUNTIME_DIR="${DIC_DEMO_RUNTIME_DIR:-${PROJECT_DIR}/deploy/runtime/demo}"
 PID_FILE="${RUNTIME_DIR}/backend.pid"
 LOG_FILE="${RUNTIME_DIR}/backend.log"
@@ -80,11 +81,17 @@ load_backend_environment() {
 }
 
 datahub_status() {
-  if [[ ! -f "${COMPOSE_FILE}" ]]; then
+  if ! sudo test -f "${COMPOSE_FILE}"; then
     printf 'DataHub: unavailable (compose file missing: %s)\n' "${COMPOSE_FILE}"
     return 1
   fi
-  if docker compose -f "${COMPOSE_FILE}" --profile quickstart ps --status running --quiet 2>/dev/null |
+  if ! sudo test -f "${SECRETS_FILE}"; then
+    printf 'DataHub: unavailable (secrets file missing: %s)\n' "${SECRETS_FILE}"
+    return 1
+  fi
+  if sudo env DATAHUB_VERSION=v1.6.0 UI_INGESTION_DEFAULT_CLI_VERSION=v1.6.0 \
+      docker compose --profile quickstart --env-file "${SECRETS_FILE}" \
+      -f "${COMPOSE_FILE}" ps --status running --quiet 2>/dev/null |
       grep -q . &&
     curl --fail --silent --max-time 3 "${GMS_HEALTH_URL}" >/dev/null 2>&1 &&
     curl --fail --silent --max-time 3 "${DATAHUB_FRONTEND_URL}" >/dev/null 2>&1; then
@@ -97,9 +104,13 @@ datahub_status() {
 
 start() {
   require_command docker
+  require_command sudo
   require_command curl
   [[ -d "${PROJECT_DIR}" ]] || fail "VM project directory not found: ${PROJECT_DIR}"
-  [[ -f "${COMPOSE_FILE}" ]] || fail "Verified DataHub compose file not found: ${COMPOSE_FILE}"
+  sudo test -f "${COMPOSE_FILE}" ||
+    fail "Verified DataHub compose file not found: ${COMPOSE_FILE}"
+  sudo test -f "${SECRETS_FILE}" ||
+    fail "Verified DataHub secrets file not found: ${SECRETS_FILE}"
   [[ -x "${PROJECT_DIR}/.venv/bin/python" ]] ||
     fail "Backend virtual environment missing. Run 'cd ${PROJECT_DIR} && make setup' once."
   load_backend_environment
@@ -107,7 +118,9 @@ start() {
   chmod 700 "${RUNTIME_DIR}"
 
   printf 'Starting DataHub v1.6.0 quickstart...\n'
-  docker compose -f "${COMPOSE_FILE}" --profile quickstart up -d
+  sudo env DATAHUB_VERSION=v1.6.0 UI_INGESTION_DEFAULT_CLI_VERSION=v1.6.0 \
+    docker compose --profile quickstart --env-file "${SECRETS_FILE}" \
+    -f "${COMPOSE_FILE}" up -d
   printf 'Waiting for private GMS and DataHub frontend health...\n'
   wait_for_url "DataHub GMS" "${GMS_HEALTH_URL}"
   wait_for_url "DataHub frontend" "${DATAHUB_FRONTEND_URL}"
@@ -140,6 +153,7 @@ start() {
 status() {
   local result=0
   require_command docker
+  require_command sudo
   require_command curl
   datahub_status || result=1
   if backend_is_running &&
