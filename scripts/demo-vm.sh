@@ -12,7 +12,7 @@ if [[ -f "${ENV_FILE}" ]]; then
   source "${ENV_FILE}"
   set +a
 fi
-COMPOSE_FILE="${DIC_DATAHUB_COMPOSE_FILE:-${HOME}/.datahub/quickstart/docker-compose.quickstart.yml}"
+COMPOSE_FILE="${DIC_DATAHUB_COMPOSE_FILE:-/home/mainulis599/.datahub/quickstart/docker-compose.yml}"
 RUNTIME_DIR="${DIC_DEMO_RUNTIME_DIR:-${PROJECT_DIR}/deploy/runtime/demo}"
 PID_FILE="${RUNTIME_DIR}/backend.pid"
 LOG_FILE="${RUNTIME_DIR}/backend.log"
