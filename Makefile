@@ -1,4 +1,4 @@
-.PHONY: check setup start seed test integration-test api frontend-setup frontend-test frontend-build frontend gate2-host-check remote-check remote-plan remote-deploy remote-verify remote-stop remote-clean smoke demo demo-check submission-check stop
+.PHONY: check setup start seed test integration-test api frontend-setup frontend-test frontend-build frontend gate2-host-check remote-check remote-plan remote-deploy remote-verify remote-stop remote-clean smoke demo demo-check demo-start demo-status demo-stop submission-check stop
 
 VENV_DIR ?= .venv
 API_HOST ?= 127.0.0.1
@@ -115,10 +115,23 @@ smoke:
 	@echo "Placeholder: smoke is not implemented yet."
 
 demo:
-	@echo "Placeholder: demo is not implemented yet."
+	@$(MAKE) demo-start
 
 demo-check:
-	@echo "Placeholder: demo-check is not implemented yet."
+	@bash tests/demo/test_demo_workflow.sh
+
+demo-start:
+	@bash scripts/demo-mac.sh
+
+demo-status:
+	@gcloud compute ssh instance-20260724-222331 \
+		--project dataincidentcommander --zone europe-west9-a \
+		--command 'cd /opt/data-incident-commander && ./scripts/demo-vm.sh status'
+
+demo-stop:
+	@gcloud compute ssh instance-20260724-222331 \
+		--project dataincidentcommander --zone europe-west9-a \
+		--command 'cd /opt/data-incident-commander && ./scripts/demo-vm.sh stop'
 
 submission-check:
 	@echo "Placeholder: submission-check is not implemented yet."

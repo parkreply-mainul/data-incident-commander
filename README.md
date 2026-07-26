@@ -135,6 +135,41 @@ make frontend FRONTEND_PORT=5173
 Open `http://127.0.0.1:5173`. Draft intake works locally. Investigation remains
 unavailable unless the required DataHub and verified MCP provider are connected.
 
+## Simple live demo startup
+
+First-time preparation is needed only if dependencies or the private `.env`
+have not already been prepared. On the Mac:
+
+```bash
+npm --prefix frontend ci
+gcloud compute ssh instance-20260724-222331 \
+  --project dataincidentcommander --zone europe-west9-a \
+  --command 'cd /opt/data-incident-commander && make setup && chmod 600 .env'
+```
+
+The VM `.env` must already contain the verified MCP environment and runtime
+token; the helper never displays either.
+The DataHub CLI-generated compose file defaults to
+`~/.datahub/quickstart/docker-compose.quickstart.yml`. If the verified file is
+elsewhere, set `DIC_DATAHUB_COMPOSE_FILE` in the private VM `.env`.
+
+For a normal demo, run one command in one Mac terminal:
+
+```bash
+make demo-start
+```
+
+Open `http://127.0.0.1:5173`. Press Ctrl+C to close the local frontend and SSH
+tunnel. To inspect or stop the VM-side DIC backend from the Mac:
+
+```bash
+make demo-status
+make demo-stop
+```
+
+`make demo-stop` does not stop DataHub or delete its metadata or volumes. No
+DataHub/GMS port is tunneled or made public.
+
 ## Approved-VM demo commands
 
 These commands are documentation only. Do not run them until the VM, token,

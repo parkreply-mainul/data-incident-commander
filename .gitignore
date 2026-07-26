@@ -225,6 +225,9 @@ deploy/env/*
 deploy/runtime/
 deploy/diagnostics/
 
+# Demo runtime logs and PID files (also covered by deploy/runtime/).
+deploy/runtime/demo/
+
 # Marimo
 marimo/_static/
 marimo/_lsp/
