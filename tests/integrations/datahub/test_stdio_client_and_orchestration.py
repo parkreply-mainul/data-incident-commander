@@ -12,7 +12,12 @@ import pytest
 
 from data_incident_commander.application.commands import CreateInvestigation
 from data_incident_commander.application.errors import DependencyUnavailable
-from data_incident_commander.domain.models import Severity
+from data_incident_commander.domain.models import (
+    AssetCriticality,
+    EvidenceType,
+    OwnerKind,
+    Severity,
+)
 from data_incident_commander.integrations.datahub.adapter import DataHubMcpEvidenceProvider
 from data_incident_commander.integrations.datahub.capabilities import CapabilityInventory
 from data_incident_commander.integrations.datahub.client_protocol import VerifiedToolResult
@@ -408,17 +413,20 @@ class FixtureClient:
                         "urn": RAW,
                         "name": "NYC Taxi Trips Raw",
                         "properties": {
-                            "customProperties": {
-                                "dic_freshness_status": "stale",
-                                "dic_freshness_observed_at": "2026-07-24T09:00:00Z",
-                                "dic_quality_status": "passing",
-                                "dic_asset_type": "dataset",
-                                "dic_criticality": "high",
-                            }
+                            "customProperties": [
+                                {"key": "dic_freshness_status", "value": "stale"},
+                                {"key": "dic_freshness_observed_at", "value": "2026-07-24T09:00:00Z"},
+                                {"key": "dic_quality_status", "value": "passing"},
+                                {"key": "dic_asset_type", "value": "dataset"},
+                                {"key": "dic_criticality", "value": "high"},
+                            ]
                         },
                         "owners": [
                             {
-                                "owner": "urn:li:corpGroup:data-platform",
+                                "owner": {
+                                    "urn": "urn:li:corpGroup:data-platform",
+                                    "name": "data-platform",
+                                },
                                 "type": "TECHNICAL_OWNER",
                             }
                         ],
@@ -427,20 +435,22 @@ class FixtureClient:
                         "urn": METRICS,
                         "name": "NYC Taxi Daily Metrics",
                         "properties": {
-                            "customProperties": {
-                                "dic_asset_type": "model",
-                                "dic_criticality": "high",
-                            }
+                            "customProperties": [
+                                {"key": "dic_quality_status", "value": "passing"},
+                                {"key": "dic_asset_type", "value": "model"},
+                                {"key": "dic_criticality", "value": "high"},
+                            ]
                         },
                     },
                     {
                         "urn": DASHBOARD,
                         "name": "NYC Taxi Operations Dashboard",
                         "properties": {
-                            "customProperties": {
-                                "dic_asset_type": "dashboard",
-                                "dic_criticality": "critical",
-                            }
+                            "customProperties": [
+                                {"key": "dic_quality_status", "value": "passing"},
+                                {"key": "dic_asset_type", "value": "dashboard"},
+                                {"key": "dic_criticality", "value": "critical"},
+                            ]
                         },
                     },
                 ]
@@ -472,13 +482,50 @@ def test_nyc_taxi_investigation_uses_only_required_mcp_reads_and_normalizes():
 
     assert report is not None
     assert report.target_asset.display_name == "NYC Taxi Trips Raw"
+    assert report.target_asset.asset_type == "dataset"
+    assert report.target_asset.criticality is AssetCriticality.HIGH
+    assert report.target_asset.owners[0].owner_id == "urn:li:corpGroup:data-platform"
     assert report.target_asset.owners[0].display_name == "data-platform"
+    assert report.target_asset.owners[0].owner_type == "TECHNICAL_OWNER"
+    assert report.target_asset.owners[0].kind is OwnerKind.TEAM
+    metadata = next(
+        item
+        for item in report.evidence_ledger
+        if item.asset_id == RAW and item.evidence_type is EvidenceType.ASSET_METADATA
+    )
+    assert metadata.factual_payload["custom_properties"]["dic_criticality"] == "high"
+    downstream_metadata = {
+        item.asset_id: item.factual_payload["custom_properties"]
+        for item in report.evidence_ledger
+        if item.evidence_type is EvidenceType.ASSET_METADATA
+        and item.asset_id in {METRICS, DASHBOARD}
+    }
+    assert downstream_metadata[METRICS]["dic_asset_type"] == "model"
+    assert downstream_metadata[METRICS]["dic_criticality"] == "high"
+    assert downstream_metadata[DASHBOARD]["dic_asset_type"] == "dashboard"
+    assert downstream_metadata[DASHBOARD]["dic_criticality"] == "critical"
+    freshness = next(
+        item
+        for item in report.evidence_ledger
+        if item.asset_id == RAW and item.evidence_type is EvidenceType.FRESHNESS_SIGNAL
+    )
+    assert freshness.factual_payload["status"] == "stale"
+    assert freshness.observed_at == datetime(2026, 7, 24, 9, tzinfo=timezone.utc)
+    quality = next(
+        item
+        for item in report.evidence_ledger
+        if item.asset_id == RAW and item.evidence_type is EvidenceType.QUALITY_ASSERTION
+    )
+    assert quality.factual_payload["status"] == "passing"
     assert report.root_cause.issue_category == "freshness"
     assert report.blast_radius.directly_affected_assets == (METRICS,)
     assert report.blast_radius.transitively_affected_assets == (DASHBOARD,)
     assert report.severity.severity is Severity.HIGH
     assert report.confidence.confidence > 0
     assert report.remediation_actions
+    assert report.remediation_actions[0].evidence_references == (
+        freshness.evidence_id,
+    )
     assert [name for name, _ in client.calls] == [
         "search",
         "get_lineage",
@@ -495,6 +542,38 @@ def test_nyc_taxi_investigation_uses_only_required_mcp_reads_and_normalizes():
         if name == "get_lineage" and arguments["upstream"]
     )
     assert upstream_call["max_hops"] == 1
+
+
+def test_malformed_mcp_properties_and_owners_fail_closed_without_dict_strings():
+    asset, evidence = DataHubMcpEvidenceProvider._entity(
+        {
+            "urn": RAW,
+            "name": "NYC Taxi Trips Raw",
+            "properties": {
+                "customProperties": [
+                    {"key": "dic_freshness_status", "value": {"status": "stale"}},
+                    {"key": {"nested": "key"}, "value": "passing"},
+                    {"key": "dic_criticality"},
+                ]
+            },
+            "owners": [
+                {"owner": {"name": "missing-urn"}, "type": "DATA_OWNER"},
+                {"owner": {"urn": {"nested": "urn"}, "name": "bad"}},
+            ],
+        },
+        NOW,
+    )
+
+    assert asset.criticality is AssetCriticality.UNKNOWN
+    assert asset.owners is None
+    assert not any(
+        item.evidence_type
+        in {EvidenceType.FRESHNESS_SIGNAL, EvidenceType.QUALITY_ASSERTION}
+        for item in evidence
+    )
+    assert evidence[0].factual_payload["custom_properties"] == {}
+    assert "{'" not in asset.model_dump_json()
+    assert "{'" not in "".join(item.model_dump_json() for item in evidence)
 
 
 def test_lineage_node_limit_is_exact_and_marks_truncation():

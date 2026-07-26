@@ -76,6 +76,50 @@ def _urn(value: Mapping[str, Any]) -> str | None:
     return _urn(entity) if isinstance(entity, Mapping) else None
 
 
+def _text(value: Any) -> str | None:
+    return value if isinstance(value, str) and value else None
+
+
+def _custom_properties(value: Any) -> dict[str, str]:
+    if isinstance(value, Mapping):
+        return {
+            key: item
+            for key, item in value.items()
+            if isinstance(key, str) and isinstance(item, str)
+        }
+    if isinstance(value, (list, tuple)):
+        return {
+            key: item_value
+            for item in value
+            if isinstance(item, Mapping)
+            and (key := _text(item.get("key"))) is not None
+            and (item_value := _text(item.get("value"))) is not None
+        }
+    return {}
+
+
+def _owner(item: Mapping[str, Any]) -> tuple[str, str, str, OwnerKind] | None:
+    reference = item.get("owner")
+    nested = reference if isinstance(reference, Mapping) else item
+    owner_id = _text(nested.get("urn"))
+    if owner_id is None and not isinstance(reference, Mapping):
+        owner_id = _text(reference)
+    if owner_id is None:
+        return None
+    display_name = (
+        _text(nested.get("displayName"))
+        or _text(nested.get("name"))
+        or owner_id.rsplit(":", 1)[-1]
+    )
+    owner_type = _text(item.get("type")) or "TECHNICAL_OWNER"
+    kind = (
+        OwnerKind.INDIVIDUAL
+        if owner_id.startswith("urn:li:corpuser:")
+        else OwnerKind.TEAM
+    )
+    return owner_id, display_name, owner_type, kind
+
+
 class DataHubMcpEvidenceProvider:
     normalization_verified = True
     investigation_orchestration_implemented = True
@@ -184,34 +228,31 @@ class DataHubMcpEvidenceProvider:
         props = value.get("properties") or value.get("datasetProperties") or {}
         if not isinstance(props, Mapping):
             props = {}
-        custom = props.get("customProperties") or value.get("customProperties") or {}
-        if isinstance(custom, list):
-            custom = {
-                item.get("key"): item.get("value")
-                for item in custom
-                if isinstance(item, Mapping) and isinstance(item.get("key"), str)
-            }
-        if not isinstance(custom, Mapping):
-            custom = {}
+        custom = _custom_properties(
+            props.get("customProperties") or value.get("customProperties")
+        )
         owner_values = value.get("owners") or value.get("ownership") or ()
         if isinstance(owner_values, Mapping):
             owner_values = owner_values.get("owners") or ()
+        if not isinstance(owner_values, (list, tuple)):
+            owner_values = ()
+        normalized_owners = [
+            normalized
+            for item in owner_values
+            if isinstance(item, Mapping)
+            and (normalized := _owner(item)) is not None
+        ]
         owners = tuple(
             Ownership(
-                owner_id=str(item.get("owner") or item.get("urn")),
-                display_name=str(
-                    item.get("displayName")
-                    or item.get("name")
-                    or str(item.get("owner") or item.get("urn")).rsplit(":", 1)[-1]
-                ),
-                owner_type=str(item.get("type") or "TECHNICAL_OWNER"),
-                kind=OwnerKind.TEAM,
-                evidence_id=_id("ownership", urn, str(item.get("owner") or item.get("urn"))),
+                owner_id=owner_id,
+                display_name=display_name,
+                owner_type=owner_type,
+                kind=kind,
+                evidence_id=_id("ownership", urn, owner_id),
             )
-            for item in owner_values
-            if isinstance(item, Mapping) and (item.get("owner") or item.get("urn"))
+            for owner_id, display_name, owner_type, kind in normalized_owners
         )
-        criticality_text = str(custom.get("dic_criticality", "unknown")).lower()
+        criticality_text = custom.get("dic_criticality", "unknown").lower()
         try:
             criticality = AssetCriticality(criticality_text)
         except ValueError:
@@ -219,8 +260,12 @@ class DataHubMcpEvidenceProvider:
         platform = urn.split(",")[0].rsplit(":", 1)[-1] if "," in urn else "datahub"
         asset = AssetIdentity(
             external_id=urn,
-            display_name=str(value.get("name") or props.get("name") or urn),
-            asset_type=str(custom.get("dic_asset_type") or value.get("type") or "dataset").lower(),
+            display_name=_text(value.get("name")) or _text(props.get("name")) or urn,
+            asset_type=(
+                custom.get("dic_asset_type")
+                or _text(value.get("type"))
+                or "dataset"
+            ).lower(),
             platform=platform,
             criticality=criticality,
             owners=owners or None,
@@ -274,7 +319,7 @@ class DataHubMcpEvidenceProvider:
                     observed_at=observed,
                     retrieved_at=now,
                     asset_id=urn,
-                    factual_payload={"status": str(custom[key])},
+                    factual_payload={"status": custom[key].lower()},
                     reliability=Reliability.VERIFIED,
                 )
             )
