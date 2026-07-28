@@ -1,116 +1,206 @@
 # Data Incident Commander
 
-Data Incident Commander (DIC) is an evidence-grounded incident-response agent
-for the DataHub Agent Hackathon, **Agents That Do Real Work** category.
+**Turn a stale-data alert into an evidence-backed, human-approved, and
+independently verified incident record.**
 
-> Runtime truth: the deterministic application, UI, approval workflow, test
-> fixtures, and controlled direct-GMS write/read-back candidate are implemented.
-> The golden demo remains fail-closed until the approved DataHub v1.6.0 VM
-> supplies a runtime-verified standalone MCP version, inventory, and schemas.
+Data Incident Commander (DIC) is a DataHub incident-response agent built for
+the DataHub Agent Hackathon, **Agents That Do Real Work** category. It connects
+catalog evidence to deterministic impact analysis and a controlled remediation
+record—without allowing an LLM or an unverified dependency to authorize a
+metadata change.
 
-## The 20-second problem
+## Live demo
 
-When a data product goes stale, responders manually jump between catalog
-search, lineage, quality, ownership, and downstream consumers. The work is
-slow, conclusions are hard to audit, and a rushed automation can mutate
-metadata before a human understands what it will write.
+**Public deployment: [http://34.155.33.35](http://34.155.33.35)**
 
-## The 20-second solution
+The public deployment was tested end-to-end from the browser. It is hosted
+independently: Nginx serves the frontend and proxies the API, the backend runs
+through systemd, and the DataHub containers use restart policies. A local Mac
+terminal does not need to remain open.
+
+> DIC is a hackathon demonstration, not a claim of production readiness.
+> Incident repository state is currently held in memory and does not survive a
+> backend process restart. New or misconfigured environments fail closed.
+
+## The problem
+
+When a data product goes stale, responders must jump between catalog search,
+ownership, freshness, quality, lineage, and downstream consumers. The work is
+slow, conclusions are difficult to audit, and rushed automation can mutate
+metadata before a human understands what will be written.
+
+## The solution
 
 DIC turns one incident report into a traceable response record. It retrieves
-live DataHub evidence through mandatory MCP operations, calculates bounded
-blast radius, deterministic severity, and evidence confidence, recommends a
-remediation, pauses for explicit human approval, performs one controlled
-DataHub write-back, reads it back as proof, and records verified incident
-memory.
+live DataHub evidence through a verified MCP boundary, calculates bounded blast
+radius, deterministic severity, and evidence confidence, recommends an
+operational response, pauses for explicit human approval, performs one narrow
+DataHub writeback, and reads the result back before recording success.
+
+The differentiator is the separation of responsibilities:
+
+- **DataHub MCP provides evidence:** asset identity, metadata, ownership,
+  freshness and quality context, and lineage.
+- **Deterministic code makes decisions:** bounded traversal, blast radius,
+  severity, and confidence do not depend on an LLM.
+- **A human authorizes mutation:** approval binds the exact normalized report
+  using SHA-256.
+- **DataHub proves the outcome:** the expected tag must be independently read
+  back before the incident can reach `RECORDED`.
+
+## Demonstrated end-to-end result
+
+The public browser workflow completed:
+
+```text
+DRAFT
+  → INVESTIGATED
+  → AWAITING_APPROVAL
+  → APPROVED
+  → WRITEBACK_PENDING
+  → RECORDED
+```
+
+DataHub evidence collection succeeded through MCP. The application resolved
+the NYC Taxi asset, collected typed evidence, calculated direct and transitive
+impact, produced deterministic severity and confidence, and recommended a
+response. After explicit approval, the controlled DataHub tag write and
+independent read-back both succeeded.
+
+### Recorded incident overview
+
+![Recorded incident overview](docs/screenshots/01-recorded-incident-overview.png)
+
+### Complete investigation and approval timeline
+
+![Complete investigation and approval timeline](docs/screenshots/02-investigation-timeline.png)
+
+### Verified evidence, ownership, and blast radius
+
+![Verified evidence, ownership, and blast radius](docs/screenshots/03-verified-evidence-and-blast-radius.png)
+
+### Approval-gated writeback with independent read-back receipt
+
+![Approval-gated writeback with independent read-back receipt](docs/screenshots/04-datahub-writeback-proof.png)
 
 ## Golden demo: NYC Taxi freshness incident
 
-```text
-Report stale NYC Taxi raw trips
-  → resolve the asset through DataHub MCP
-  → collect metadata, ownership, freshness, quality, and lineage
-  → calculate downstream blast radius
-  → calculate deterministic severity and evidence confidence
-  → recommend rerunning the delayed ingestion
-  → submit the exact report for human review
-  → approve its SHA-256 payload binding
-  → write the incident tag through an approved DataHub operation
-  → read globalTags back and verify the tag
-  → transition to RECORDED and retain in-process incident memory
-```
-
-The small fixture contains three assets:
+The reproducible fixture contains three assets:
 
 ```text
-NYC Taxi Trips Raw
+NYC Taxi Trips Raw — stale
   → NYC Taxi Daily Metrics
     → NYC Taxi Operations Dashboard
 ```
 
 The raw asset carries a planted stale freshness signal. The derived model and
-dashboard make impact visible without turning the demo into a data-loading
-project.
+dashboard make downstream impact visible without turning the demonstration
+into a data-loading project.
+
+The demonstrated investigation reported 11 verified evidence records, three
+assets in scope, one directly affected asset, one transitively affected asset,
+high severity with score 5, 88% evidence confidence, and the technical owner
+`data-platform`.
+
+## How the complete workflow works
+
+1. A responder reports an incident against a specific DataHub asset.
+2. DIC verifies MCP availability, tool inventory, and compatible input schemas.
+3. MCP operations resolve the asset and retrieve entity, ownership, signal, and
+   bounded lineage evidence.
+4. Deterministic engines calculate direct and transitive blast radius, severity,
+   and evidence confidence.
+5. DIC produces an evidence-linked remediation recommendation.
+6. The report is submitted for review, and a human approves the SHA-256 binding
+   of the exact normalized report.
+7. Only the approved workflow can request the narrow incident-tag write through
+   DataHub GMS.
+8. DIC reads the persisted `globalTags` aspect back independently.
+9. The incident reaches `RECORDED` only when the observed tag matches the
+   expected tag.
+
+DIC recommends restoring and rerunning the delayed ingestion, but it does not
+alter source data, execute a pipeline, or contact an owner.
 
 ## Why DataHub is essential
 
 DataHub is the live system of record for asset identity, ownership, lineage,
-freshness/quality context, and the final metadata tag. Without DataHub, DIC has
-no evidence and refuses to invent a successful investigation. The demo is not
-a chatbot over fixtures: its acceptance contract requires runtime evidence
-from the pinned **DataHub OSS v1.6.0** instance.
+freshness and quality context, and the final metadata tag. Without verified
+DataHub evidence, DIC refuses to invent a successful investigation.
 
-## Why MCP is mandatory
+The demonstrated runtime uses DataHub OSS v1.6.0 and the small NYC Taxi fixture
+only to make the judge scenario reproducible.
 
-The read/investigation path must use a runtime-verified standalone DataHub MCP
-Server. The existing `DataHubMcpEvidenceProvider` and typed normalization
-boundary fail closed until the actual server version, tool inventory, schemas,
-and read-only capabilities are observed. Tool names or response fields are
-never guessed.
+## MCP reads and controlled GMS writeback
 
-Direct GMS is secondary. It is currently a minimal candidate for fixture
-ingestion and the controlled tag write/read-back path; it does not replace MCP
-as the evidence origin.
+Investigation reads use the standalone `mcp-server-datahub` v0.6.0 server over
+stdio. The application validates the runtime tool inventory and compatible
+input schemas before enabling evidence collection. Its bounded investigation
+path uses:
 
-## Safety model
+- `search`
+- `get_entities`
+- `get_lineage`
+- `get_lineage_paths_between`
 
-- **Fail closed:** missing, ambiguous, malformed, unavailable, or unverified
-  evidence never becomes a successful investigation.
-- **Deterministic decisions:** versioned rules calculate lineage traversal,
-  blast radius, severity, and confidence independently of an LLM.
-- **Evidence ledger:** every confirmed finding and recommendation refers to
-  typed evidence with source operation and timestamps.
-- **Human-controlled mutation:** write-back is disabled by default and cannot
-  run before `INVESTIGATED → AWAITING_APPROVAL → APPROVED`.
-- **Approval binding:** the reviewer approves the SHA-256 binding of the exact
-  normalized report.
-- **Read-back proof:** `RECORDED` is reached only after DataHub returns the
-  expected tag; mismatch leaves the incident `APPROVED`.
-- **No source-data remediation:** DIC recommends operational action but does
-  not alter NYC Taxi data, run pipelines, or contact owners.
+The mutation path is deliberately separate. A narrow direct-GMS adapter is
+disabled by default and becomes available only through explicit runtime
+configuration. After approval, it associates the incident tag and reads
+`globalTags` back independently. Direct GMS does not replace MCP as the origin
+of investigation evidence.
 
-## Concise architecture
+## Architecture
 
 ```text
-React/Vite UI
-  → FastAPI application service
-    → typed incident state machine + in-memory repository
-    → deterministic lineage / blast radius / severity / confidence engines
-    → DataHubMcpEvidenceProvider (mandatory read evidence)
-      → runtime-verified DataHub MCP Server
-        → DataHub OSS v1.6.0
-    → approval-gated DataHub mutation
-      → independent read-back verification
+Browser
+  → Nginx
+    → React/Vite frontend
+    → FastAPI application service (systemd)
+      → typed incident state machine + in-memory repository
+      → deterministic lineage / blast radius / severity / confidence
+      → DataHubMcpEvidenceProvider
+        → stdio client + runtime inventory/schema gate
+          → mcp-server-datahub v0.6.0
+            → DataHub OSS v1.6.0
+      → approval-gated direct-GMS tag write
+        → independent globalTags read-back
 ```
 
-The backend owns calculations and workflow state. DataHub owns catalog
-evidence and persisted metadata. MCP is the mandatory read boundary. See
+The backend owns calculations, workflow state, approval history, and
+recommendations. DataHub owns catalog evidence and persisted metadata. See
 [Architecture](docs/ARCHITECTURE.md) and
 [MCP adapter architecture](docs/MCP_ADAPTER_ARCHITECTURE.md).
 
-## Local development and validation
+## Safety model
 
-Prerequisites: Python 3.11+, Node/npm, and repository-local dependencies.
+- **Fail closed:** unavailable, ambiguous, malformed, or unverified evidence
+  cannot become a successful investigation.
+- **Exact asset resolution:** ambiguous search results are rejected.
+- **Bounded lineage:** traversal has explicit depth and node limits.
+- **Deterministic decisions:** versioned rules calculate blast radius, severity,
+  and confidence separately from any language model.
+- **Evidence ledger:** confirmed findings and recommendations refer to typed
+  evidence with source operations and timestamps.
+- **Human-controlled mutation:** writeback is disabled by default and cannot run
+  before review and explicit approval.
+- **Approval binding:** the reviewer approves the SHA-256 binding of the exact
+  normalized report.
+- **Read-back proof:** a successful write alone is insufficient; a mismatch
+  cannot reach `RECORDED`.
+- **No source-data remediation:** DIC recommends operational action but does not
+  change NYC Taxi data or run pipelines.
+
+## Validation
+
+- **Backend:** 423 tests passed.
+- **Frontend:** production build passed.
+
+The repository includes focused domain, application, API, MCP integration,
+direct-GMS, frontend, deployment-safety, and demo-workflow tests.
+
+## Local development
+
+Prerequisites: Python 3.11+, Node.js/npm, and repository-local dependencies.
 
 ```bash
 make check
@@ -122,7 +212,7 @@ make frontend-build
 make remote-check
 ```
 
-Run the fail-closed local application in two terminals:
+Run the application in two terminals:
 
 ```bash
 # Terminal 1
@@ -132,97 +222,34 @@ make api API_HOST=127.0.0.1 API_PORT=8000
 make frontend FRONTEND_PORT=5173
 ```
 
-Open `http://127.0.0.1:5173`. Draft intake works locally. Investigation remains
-unavailable unless the required DataHub and verified MCP provider are connected.
+Open `http://127.0.0.1:5173`. An unconfigured local environment supports draft
+intake but intentionally reports DataHub/MCP as unavailable. The full workflow
+requires a private DataHub runtime, the verified MCP configuration, and
+separately enabled writeback. Never commit runtime credentials or private
+environment files.
 
-## Simple live demo startup
+## Demonstrated capabilities and future work
 
-First-time preparation is needed only if dependencies or the private `.env`
-have not already been prepared. On the Mac:
+Demonstrated now:
 
-```bash
-npm --prefix frontend ci
-gcloud compute ssh instance-20260724-222331 \
-  --project dataincidentcommander --zone europe-west9-a \
-  --command 'cd /home/mainulislam/data-incident-commander && make setup && chmod 600 .env'
-```
+- Browser-based intake through a verified `RECORDED` result.
+- Live MCP evidence collection from DataHub.
+- Typed evidence ledger, ownership, freshness/quality context, and lineage.
+- Bounded blast radius plus deterministic severity and confidence.
+- Explicit review and approval bound to the exact report.
+- Approval-gated DataHub tag write with independent read-back.
+- Public deployment that remains available without a local development
+  terminal.
 
-The VM `.env` must already contain the verified MCP environment and runtime
-token; the helper never displays either.
-The DataHub CLI-generated compose file defaults to
-`~/.datahub/quickstart/docker-compose.quickstart.yml`. If the verified file is
-elsewhere, set `DIC_DATAHUB_COMPOSE_FILE` in the private VM `.env`.
+Future work required for production use:
 
-For a normal demo, run one command in one Mac terminal:
-
-```bash
-make demo-start
-```
-
-Open `http://127.0.0.1:5173`. Press Ctrl+C to close the local frontend and SSH
-tunnel. To inspect or stop the VM-side DIC backend from the Mac:
-
-```bash
-make demo-status
-make demo-stop
-```
-
-`make demo-stop` does not stop DataHub or delete its metadata or volumes. No
-DataHub/GMS port is tunneled or made public.
-
-## Approved-VM demo commands
-
-These commands are documentation only. Do not run them until the VM, token,
-MCP release, and mutation checkpoint have been separately approved.
-
-```bash
-cd /home/mainulislam/data-incident-commander
-
-export DIC_GMS_URL=http://127.0.0.1:8080
-export DIC_GMS_TOKEN_ENV=DATAHUB_GMS_TOKEN
-export DATAHUB_GMS_TOKEN='<runtime-secret>'
-
-# Load only the small public demo metadata after approval.
-datahub ingest -c demo/nyc_taxi_recipe.yml
-
-# Verify the pinned DataHub runtime and deployment artifacts.
-make remote-verify REMOTE_ENV=/secure/path/dic-remote.env
-make integration-test
-
-# Terminal 1: start the API after the verified MCP provider is configured.
-make api API_HOST=127.0.0.1 API_PORT=8000
-
-# Terminal 2: start the UI.
-make frontend FRONTEND_PORT=5173
-```
-
-For the separately approved mutation rehearsal, stop the API process, enable
-the narrow mutation configuration in the same shell, and restart it:
-
-```bash
-export DIC_DATAHUB_MUTATION_ENABLED=true
-export DIC_DATAHUB_WRITEBACK_TAG_URN=urn:li:tag:dic-incident-recorded
-make api API_HOST=127.0.0.1 API_PORT=8000
-```
-
-Expected effect: only the approved incident tag is associated with the target
-demo dataset. Rollback: remove `dic-incident-recorded` from that dataset and
-restart the API without `DIC_DATAHUB_MUTATION_ENABLED=true`.
-
-## Judge walkthrough checklist
-
-- [ ] DataHub reports v1.6.0 and the MCP inventory is visibly verified.
-- [ ] Submit the NYC Taxi raw-dataset freshness incident.
-- [ ] Show live asset, ownership, freshness, quality, and lineage evidence.
-- [ ] Explain direct and transitive blast radius.
-- [ ] Show deterministic severity separately from evidence confidence.
-- [ ] Read the evidence-backed remediation.
-- [ ] Demonstrate that write-back is unavailable before human approval.
-- [ ] Submit and approve the exact payload binding.
-- [ ] Perform the single controlled tag write.
-- [ ] Show the read-back receipt and `RECORDED` state.
-- [ ] Show the verified in-process incident-memory ending.
-- [ ] Demonstrate fail-closed behavior if DataHub or MCP is unavailable.
+- Replace the in-memory repository with durable storage.
+- Add production identity, authentication, authorization, and reviewer roles.
+- Add production-grade observability, backup, recovery, and availability
+  controls.
+- Generalize the demonstration fixture and operational runbooks for additional
+  incident types and environments.
+- Complete a dedicated security and production-readiness review.
 
 ## Submission material
 
@@ -234,11 +261,9 @@ restart the API without `DIC_DATAHUB_MUTATION_ENABLED=true`.
 
 ## Scope and independence
 
-DIC does not execute remediation, mutate source data, add a database, introduce
-a general agent platform, or silently choose ambiguous assets. This repository
-is standalone: it does not copy, import, adapt, reference, or use another
-project as a hidden dependency, implementation source, fixture, or demo-data
-source.
+DIC does not execute remediation, mutate source data, notify owners, introduce a
+general agent platform, or silently choose ambiguous assets. It is a standalone
+project with a deliberately bounded demo scenario.
 
 ## License
 
